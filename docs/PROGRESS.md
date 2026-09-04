@@ -44,41 +44,29 @@
 
 ## Current State
 
-**Milestone:** Project scaffolded from scratch — foundation, config, types, and database migrations in place. No screens built yet.
+**Milestone:** Auth infrastructure and 12 Shared UI Components built.
 
-- Repo: Next.js 14+ App Router (TypeScript strict mode, Tailwind CSS v4, shadcn/ui initialized).
-- Dependencies installed: `@supabase/supabase-js`, `@supabase/ssr`, `@tanstack/react-query`, `recharts`, `lucide-react`.
-- Folder structure matches `docs/02-tech-stack.md` §3:
-  - `/app/(learner)/parcels/...`, `/app/(guard)/guard/...`, `/app/(admin)/admin/...`
-  - `/components` (shadcn setup complete)
-  - `/lib/types` — Types and enums matching Postgres enums (`CollectionType`, `RequestStatus`, etc.)
-  - `/lib/repositories`, `/lib/services`, `/lib/notifications` — placeholder `.gitkeep`s
-  - `/lib/supabase` — browser client + server client singletons
-  - `/supabase/migrations` — full initial schema migration with RLS
-  - `/supabase/functions` — placeholder `.gitkeep`
-- Database: Single migration `20240101000000_initial_schema.sql` covers all tables (`students`, `guards`, `parcel_requests`, `parcels`, `escalation_log`, `capacity_config`), enums, indexes, triggers, materialized view (`analytics_daily`), RLS policies, and seed data.
-- Tailwind configured in `app/globals.css` with exact design system colors from `docs/06-design-system.md` (`#E4572E` primary, `#FBF6F1` background).
-- Docs: all 6 numbered spec files + 6 PNG mockups + CLAUDE.md + PROGRESS.md in `/docs`.
-- `.env.local.example` created with required Supabase env var placeholders.
-- Repo pushed to `https://github.com/AkhilSharma11681/RUCSYS.git`.
+- Auth implemented with Supabase SSR: Middleware enforces role-based route gating across `/parcels` (learner), `/guard` (guard), and `/admin` (admin).
+- `/app/login/page.tsx` built as mobile-first UI with tabs for Learner Magic Link (restricted to `@rishihood.edu.in`) and Staff login. OAuth callback and signout routes implemented.
+- Route group Layouts implemented for `(learner)`, `(guard)`, and `(admin)`, utilizing `AppHeader` and `BottomTabBar` components where appropriate.
+- 12 Presentation-only Shared Components built inside `/components`: `AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`/`OutlineButton`, `PlatformIcon`. All components strictly match the 6 PNG mockups and `docs/06-design-system.md` visual specifications (Tailwind v4 with specific token colors `#FBF6F1`, `#E4572E`).
 
 ## Next Up (priority order)
 
-1. Set up Supabase Auth (college-domain-restricted magic link) + role-based routing middleware.
-2. Build Learner App screens A1–A3 (Pre-Register `/parcels/new`, Confirmation `/parcels/[id]/confirmation`, My Requests `/parcels`).
-3. Build Guard App screens B1–B2 (Dashboard `/guard` with Realtime, Mark Arrived `/guard/arrivals/[requestId]`).
-4. Implement OTP flow: A5 (`/parcels/[id]/collect`) + B4 (`/guard/collect`).
-5. Implement overdue escalation cron and Guard overdue list B5 (`/guard/overdue`).
-6. Implement unregistered-parcel quick add (B3) and learner claim flow.
-7. Build Admin Dashboard screens C1–C3.
+1. Build Learner App screens A1–A3 (Pre-Register `/parcels/register`, Confirmation `/parcels/[id]/confirmation`, My Requests `/parcels`).
+2. Build Guard App screens B1–B2 (Dashboard `/guard` with Realtime, Mark Arrived `/guard/arrivals/[requestId]`).
+3. Implement OTP flow: A5 (`/parcels/[id]/collect`) + B4 (`/guard/collect`).
+4. Implement overdue escalation cron and Guard overdue list B5 (`/guard/overdue`).
+5. Implement unregistered-parcel quick add (B3) and learner claim flow.
+6. Build Admin Dashboard screens C1–C3.
 
 ## Known Issues / Blockers
 
-- None yet — project is freshly scaffolded.
+- None.
 
 ## Decisions & Deviations from `/docs` specs
 
-- None yet — following spec exactly.
+- OTP Display (`OtpDigitDisplay`) implements a static 6-digit design with NO countdown timer, overriding the mockup's timer based on the explicit `05-business-rules-and-edge-cases` and `06-design-system.md` resolution.
 
 ## Environment / Setup Notes
 
@@ -94,3 +82,8 @@
 - Asked to: Initialize the full project from scratch — Next.js 14+ App Router, all dependencies, folder structure, types, migrations, design system config, and docs.
 - Did: Scaffolded Next.js with TypeScript strict mode and Tailwind CSS v4. Installed all required deps. Set up shadcn/ui. Created the full folder structure per `02-tech-stack.md`. Created TypeScript enums and interfaces matching Postgres schema. Created Supabase client singletons. Wrote the complete initial schema migration with all tables, RLS, triggers, indexes, and materialized view. Configured Tailwind in `globals.css` with design system colors (`#E4572E`, etc). Copied all reference docs and mockups to `/docs`. Created root `CLAUDE.md` and `.env.local.example`. Git initialized, committed, and pushed successfully to GitHub repo.
 - Left off at: Ready for auth setup and screen building.
+
+### Session 2 — Auth and Shared Components (2026-09-05)
+- Asked to: Build the Auth system and the 12 shared presentation components from docs/06-design-system.md + PNGs. Setup layouts for (learner), (guard) and (admin).
+- Did: Implemented `middleware.ts` for role-gated Supabase SSR auth (`/parcels`, `/guard`, `/admin`). Built `/login` with distinct Learner and Staff tabs (domain-restricted for learners). Built OAuth callbacks. Built `(learner)`, `(guard)`, and `(admin)` group Layouts with proper persistent headers and bottom navigation. Created all 12 mobile-first shared UI components (`AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`, `OutlineButton`, `PlatformIcon`) adhering strictly to Tailwind tokens `#FBF6F1`, `#E4572E`, `#6B6B6B`, etc. from the specs.
+- Left off at: Ready to begin building Learner App screens.
