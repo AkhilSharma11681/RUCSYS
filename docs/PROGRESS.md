@@ -50,17 +50,17 @@
 - Dependencies installed: `@supabase/supabase-js`, `@supabase/ssr`, `@tanstack/react-query`, `recharts`, `lucide-react`.
 - Folder structure matches `docs/02-tech-stack.md` §3:
   - `/app/(learner)/parcels/...`, `/app/(guard)/guard/...`, `/app/(admin)/admin/...`
-  - `/components` (shadcn button already scaffolded)
-  - `/lib/types` — TypeScript enums matching Postgres enums (`CollectionType`, `RequestStatus`, `EscalationStage`, `Platform`)
-  - `/lib/repositories` — placeholder `.gitkeep`
-  - `/lib/services` — placeholder `.gitkeep`
+  - `/components` (shadcn setup complete)
+  - `/lib/types` — Types and enums matching Postgres enums (`CollectionType`, `RequestStatus`, etc.)
+  - `/lib/repositories`, `/lib/services`, `/lib/notifications` — placeholder `.gitkeep`s
   - `/lib/supabase` — browser client + server client singletons
   - `/supabase/migrations` — full initial schema migration with RLS
   - `/supabase/functions` — placeholder `.gitkeep`
 - Database: Single migration `20240101000000_initial_schema.sql` covers all tables (`students`, `guards`, `parcel_requests`, `parcels`, `escalation_log`, `capacity_config`), enums, indexes, triggers, materialized view (`analytics_daily`), RLS policies, and seed data.
-- Tailwind configured with design system colors from `docs/06-design-system.md` (`#E4572E` primary, `#FBF6F1` background).
+- Tailwind configured in `app/globals.css` with exact design system colors from `docs/06-design-system.md` (`#E4572E` primary, `#FBF6F1` background).
 - Docs: all 6 numbered spec files + 6 PNG mockups + CLAUDE.md + PROGRESS.md in `/docs`.
 - `.env.local.example` created with required Supabase env var placeholders.
+- Repo pushed to `https://github.com/AkhilSharma11681/RUCSYS.git`.
 
 ## Next Up (priority order)
 
@@ -92,5 +92,5 @@
 
 ### Session 1 — Project scaffold from scratch (2026-09-05)
 - Asked to: Initialize the full project from scratch — Next.js 14+ App Router, all dependencies, folder structure, types, migrations, design system config, and docs.
-- Did: Scaffolded Next.js with TypeScript strict mode and Tailwind CSS v4. Installed all required deps. Set up shadcn/ui. Created the full folder structure per `02-tech-stack.md`. Created TypeScript enums matching Postgres enums. Created Supabase client singletons. Wrote the complete initial schema migration with all tables, RLS, triggers, indexes, and materialized view. Configured Tailwind with design system colors. Copied all reference docs and mockups to `/docs`. Created root `CLAUDE.md`.
+- Did: Scaffolded Next.js with TypeScript strict mode and Tailwind CSS v4. Installed all required deps. Set up shadcn/ui. Created the full folder structure per `02-tech-stack.md`. Created TypeScript enums and interfaces matching Postgres schema. Created Supabase client singletons. Wrote the complete initial schema migration with all tables, RLS, triggers, indexes, and materialized view. Configured Tailwind in `globals.css` with design system colors (`#E4572E`, etc). Copied all reference docs and mockups to `/docs`. Created root `CLAUDE.md` and `.env.local.example`. Git initialized, committed, and pushed successfully to GitHub repo.
 - Left off at: Ready for auth setup and screen building.
