@@ -44,35 +44,42 @@
 
 ## Current State
 
-**Milestone:** Auth infrastructure and 12 Shared UI Components built.
+**Milestone:** Neon Postgres + Drizzle ORM Database Migration & Auth Infrastructure.
 
-- Auth implemented with Supabase SSR: Middleware enforces role-based route gating across `/parcels` (learner), `/guard` (guard), and `/admin` (admin).
-- `/app/login/page.tsx` built as mobile-first UI with tabs for Learner Magic Link (restricted to `@rishihood.edu.in`) and Staff login. OAuth callback and signout routes implemented.
-- Route group Layouts implemented for `(learner)`, `(guard)`, and `(admin)`, utilizing `AppHeader` and `BottomTabBar` components where appropriate.
-- 12 Presentation-only Shared Components built inside `/components`: `AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`/`OutlineButton`, `PlatformIcon`. All components strictly match the 6 PNG mockups and `docs/06-design-system.md` visual specifications (Tailwind v4 with specific token colors `#FBF6F1`, `#E4572E`).
+- Dropped Supabase entirely; migrating to Neon Postgres + `drizzle-orm`.
+- Auth is fully working end-to-end: login tested and verified for both a seeded test student (`test.student@rishihood.edu.in`, role=learner, redirects to `/parcels`) and a seeded test guard (`guard@rishihood.edu.in`, role=guard, redirects to `/guard`) via the new Credentials-based NextAuth + Neon + bcrypt flow. Confirmed `middleware.ts` required no changes — it was already provider-agnostic.
+- Clean schema applied to Neon via 3 migration files under `lib/db/migrations/` (`0000_enums_and_users`, `0001_parcels_and_config`, `0002_indexes_and_views`) — verified via psql, all 6 core tables present with `password_hash` columns.
+- `lib/db/index.ts` created as the single `drizzle` + `neon-http` connection singleton with explicit `DATABASE_URL` check, verified with `tsc --noEmit -p tsconfig.json` (0 errors).
+- Existing code structure present: `/app/login/page.tsx`, `middleware.ts`, `auth.ts`, the `(learner)`/`(guard)`/`(admin)` route group layouts, and the 12 shared UI components (`AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`/`OutlineButton`, `PlatformIcon`) matching `docs/06-design-system.md` and the PNG mockups.
+- The 12 shared UI components do NOT need any changes (they are presentation-only with zero Supabase dependencies).
 
 ## Next Up (priority order)
 
-1. Build Learner App screens A1–A3 (Pre-Register `/parcels/register`, Confirmation `/parcels/[id]/confirmation`, My Requests `/parcels`).
-2. Build Guard App screens B1–B2 (Dashboard `/guard` with Realtime, Mark Arrived `/guard/arrivals/[requestId]`).
-3. Implement OTP flow: A5 (`/parcels/[id]/collect`) + B4 (`/guard/collect`).
-4. Implement overdue escalation cron and Guard overdue list B5 (`/guard/overdue`).
-5. Implement unregistered-parcel quick add (B3) and learner claim flow.
-6. Build Admin Dashboard screens C1–C3.
+1. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
+2. Implement Auth system (login/signup, password hashing, JWT session cookies, and role-gating middleware).
+3. Convert Realtime guard/admin dashboards to polling mechanisms.
+4. Convert OTP edge function to a Next.js API route.
+5. Convert `pg_cron` escalation to a Vercel Cron Job.
+6. Build Learner App screens A1–A3, Guard App screens B1–B2, OTP flow, and Admin Dashboard screens C1–C3.
 
 ## Known Issues / Blockers
 
-- None.
+- Repositories layer (`lib/repositories/*`) still references Supabase and needs conversion to Drizzle ORM.
+- `app/(learner)/parcels` has a `layout.tsx` but no `page.tsx` yet (confirmed via find), so `/parcels` currently 404s post-login — this is expected, not a bug; building A1-A3 is next.
 
 ## Decisions & Deviations from `/docs` specs
 
 - OTP Display (`OtpDigitDisplay`) implements a static 6-digit design with NO countdown timer, overriding the mockup's timer based on the explicit `05-business-rules-and-edge-cases` and `06-design-system.md` resolution.
+- Allowed domain restrictions updated: Learner emails now support both `@rishihood.edu.in` and `@nst.rishihood.edu.in` domains across client logic and database constraints.
+- Switched database provider from Supabase to Neon Postgres using Drizzle ORM (`drizzle-orm/neon-http`).
+- Changed Auth model from Supabase Auth/NextAuth to custom email+password authentication storing `password_hash` on user records and maintaining sessions via NextAuth Credentials provider with JWT.
 
 ## Environment / Setup Notes
 
 - Local dev URL: `http://localhost:3000`
 - Run `npm run dev` to start the dev server.
-- Supabase env vars needed in `.env.local` (see `.env.local.example`).
+- Database connection string required in `DATABASE_URL` within `.env.local`.
+- Two seed test accounts exist via `scripts/seed-test-users.ts` (password "password123" for both: `test.student@rishihood.edu.in` and `guard@rishihood.edu.in`) — safe to re-run, skips existing rows.
 
 ---
 
@@ -87,3 +94,13 @@
 - Asked to: Build the Auth system and the 12 shared presentation components from docs/06-design-system.md + PNGs. Setup layouts for (learner), (guard) and (admin).
 - Did: Implemented `middleware.ts` for role-gated Supabase SSR auth (`/parcels`, `/guard`, `/admin`). Built `/login` with distinct Learner and Staff tabs (domain-restricted for learners). Built OAuth callbacks. Built `(learner)`, `(guard)`, and `(admin)` group Layouts with proper persistent headers and bottom navigation. Created all 12 mobile-first shared UI components (`AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`, `OutlineButton`, `PlatformIcon`) adhering strictly to Tailwind tokens `#FBF6F1`, `#E4572E`, `#6B6B6B`, etc. from the specs.
 - Left off at: Ready to begin building Learner App screens.
+
+### Session 3 — Neon Postgres & Drizzle ORM Migration (2026-09-05)
+- Asked to: Update PROGRESS.md to document the database migration to Neon Postgres and Drizzle ORM.
+- Did: Migrated database stack from Supabase to Neon Postgres + Drizzle ORM (`drizzle-orm/neon-http`). Removed NextAuth adapter tables in favor of plain email+password auth storing `password_hash` on student/guard tables. Applied 3 clean migration files under `lib/db/migrations/` (`0000_enums_and_users`, `0001_parcels_and_config`, `0002_indexes_and_views`) establishing all 6 core tables. Created `lib/db/index.ts` as the single Drizzle connection singleton with explicit `DATABASE_URL` check (verified clean with `tsc --noEmit -p tsconfig.json`).
+- Left off at: Ready to convert repository layer from Supabase to Drizzle ORM.
+
+### Session 4 — Credentials Auth Migration & Verification (2026-09-05)
+- Asked to: Update PROGRESS.md to document auth implementation and end-to-end testing with Credentials provider.
+- Did: Rewrote `auth.ts` off Resend/DrizzleAdapter onto NextAuth Credentials provider with bcrypt password comparison against Neon DB (`students` and `guards` tables). Updated `/app/login/page.tsx` for password input fields across Learner and Staff tabs. Verified auth end-to-end via curl and browser for both test student (`test.student@rishihood.edu.in`) and test guard (`guard@rishihood.edu.in`), confirming proper role-based redirects (`/parcels` and `/guard`). Confirmed `middleware.ts` required no changes as it was already provider-agnostic.
+- Left off at: Ready to build Learner App screens A1–A3.

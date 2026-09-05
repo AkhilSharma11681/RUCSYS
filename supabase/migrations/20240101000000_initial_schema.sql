@@ -10,7 +10,7 @@ create type escalation_stage as enum ('reminder', 'notification', 'call', 'deadl
 create table students (
   id            uuid primary key default gen_random_uuid(),
   full_name     text not null,
-  email         text not null unique check (email like '%@rishihood.edu.in'),
+  email         text not null unique check (email like '%@rishihood.edu.in' or email like '%@nst.rishihood.edu.in'),
   phone         text,
   hostel_room   text,
   created_at    timestamptz not null default now()

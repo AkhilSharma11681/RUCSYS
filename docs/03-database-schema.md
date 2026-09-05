@@ -28,7 +28,7 @@ guards                                │
 create table students (
   id            uuid primary key default gen_random_uuid(),
   full_name     text not null,
-  email         text not null unique check (email like '%@rishihood.edu.in'), -- restricted to college domain, enforced in Auth + check constraint
+  email         text not null unique check (email like '%@rishihood.edu.in' or email like '%@nst.rishihood.edu.in'), -- restricted to college domains, enforced in Auth + check constraint
   phone         text,
   hostel_room   text,
   created_at    timestamptz not null default now()
