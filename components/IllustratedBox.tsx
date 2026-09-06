@@ -19,14 +19,17 @@ export const IllustratedBox: React.FC<IllustratedBoxProps> = ({
         <svg
           width={size}
           height={size}
-          viewBox="0 0 100 100"
+          viewBox="0 0 120 110"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <ellipse cx="50" cy="82" rx="26" ry="5" fill="#8C6D58" fillOpacity="0.14" />
-          <path d="M30 45L50 35L70 45L50 55Z" fill="#7A4E2D" />
-          <path d="M30 45L50 55V78L30 68V45Z" fill="#DDB694" />
-          <path d="M50 55L70 45V68L50 78V55Z" fill="#B98A66" />
+          <ellipse cx="60" cy="96" rx="32" ry="6" fill="#8C6D58" fillOpacity="0.15" />
+          <path d="M15 95 Q22 82 30 90 Q22 98 15 95Z" fill="#8FBF8A" />
+          <path d="M105 95 Q98 82 90 90 Q98 98 105 95Z" fill="#7AAE79" />
+          <path d="M42 40 L34 12 L58 18 L60 40Z" fill="#E8C7A0" />
+          <path d="M60 40 L62 18 L86 12 L78 40Z" fill="#C99B6E" />
+          <path d="M35 50L85 50L78 40L42 40Z" fill="#6B4A30" />
+          <path d="M35 50L85 50L90 90L30 90Z" fill="#D9A876" />
         </svg>
       </div>
     );

@@ -111,3 +111,25 @@
 - Asked to: Build the Pre-Register a Parcel (A1) and Confirmation (A2) screens.
 - Did: Completed screens A1 (`app/(learner)/parcels/new/page.tsx`) and A2 (`app/(learner)/parcels/[id]/confirmation/page.tsx`). Added Zepto and Blinkit to Platform enum. Generalized CapacityCallout component. Created `/api/capacity` to feed live data. Verified end-to-end form posting and confirmation reading from Neon DB using Next.js server actions and repository patterns.
 - Left off at: Ready to build A3 My Parcel Requests screen (`/parcels`).
+
+### Session 6 — Learner Screens A1/A2/A3 Visual Restyling & A3 Completion (2026-09-06)
+- **What was done:**
+  - Built Screen A3 (My Parcel Requests list, `/parcels`) with interactive tabs (Active, Collected, Cancelled), empty states, compact history items, detail grid, and parcel cancellation Server Action (`cancelParcelRequest`).
+  - Completed precision visual restyling across all three Learner App screens: A1 (Pre-Register), A2 (Confirmation), and A3 (My Parcel Requests) to match `docs/1.png`, `docs/2.png`, and `docs/3.png` design mockups.
+  - Implemented pixel-perfect SVG `IllustratedBox` (supporting `open`, `sealed`, and `success` variants with refined geometry avoiding flap flare artifacts), brand-accurate vector `PlatformIcon` (Amazon, Flipkart, Myntra, Bluedart, Delhivery, Zepto, Blinkit, etc.), updated `CapacityCallout`, `StepExplainer`, custom pill tabs, status badges, and refined typography/spacing.
+- **Current state:**
+  - All three Learner screens (A1, A2, A3) pass TypeScript check (`npx tsc --noEmit`) and production build (`npm run build`) cleanly with zero errors.
+  - Form registration, capacity indicators, confirmation flow, parcel listing, tab filtering, and cancellation have been manually verified in browser against mockups and Neon DB.
+  - All changes are committed locally (not yet pushed to `origin/feature/neon-migration`).
+- **Known issues:**
+  - None currently open for A1/A2/A3.
+- **Next up (priority order):**
+  1. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
+  2. Convert Realtime guard/admin dashboards to polling mechanisms.
+  3. Convert OTP edge function to a Next.js API route.
+  4. Convert `pg_cron` escalation to a Vercel Cron Job.
+  5. Build Guard App screens (B1–B2) and OTP verification flow (B4).
+  6. Build Admin Dashboard screens (C1–C3).
+- **Note explicitly:**
+  - Local commits on `feature/neon-migration` are AHEAD of origin by multiple commits. A `git push` is required at an appropriate checkpoint to synchronize remote branch.
+
