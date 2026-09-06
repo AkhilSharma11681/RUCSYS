@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EscalationService } from '@/lib/services/EscalationService';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
   
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
