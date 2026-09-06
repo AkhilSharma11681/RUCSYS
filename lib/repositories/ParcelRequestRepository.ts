@@ -1,6 +1,6 @@
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, count, or, ilike } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { parcelRequests } from '@/lib/db/schema';
+import { parcelRequests, students } from '@/lib/db/schema';
 
 export class ParcelRequestRepository {
   async create(data: {
@@ -56,5 +56,87 @@ export class ParcelRequestRepository {
       .returning();
 
     return result || null;
+  }
+
+  async countByStatus(status: 'pending' | 'ready_for_pickup' | 'overdue'): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(parcelRequests)
+      .where(eq(parcelRequests.status, status));
+
+    return result.count;
+  }
+
+  async searchPending(query: string = '') {
+    if (!query || query.trim() === '') {
+      return await db
+        .select({
+          id: parcelRequests.id,
+          platform: parcelRequests.platform,
+          orderLast4: parcelRequests.orderLast4,
+          collectionType: parcelRequests.collectionType,
+          expectedDate: parcelRequests.expectedDate,
+          studentName: students.fullName,
+        })
+        .from(parcelRequests)
+        .leftJoin(students, eq(parcelRequests.studentId, students.id))
+        .where(eq(parcelRequests.status, 'pending'))
+        .orderBy(parcelRequests.createdAt);
+    }
+
+    const searchTerm = `%${query.trim()}%`;
+
+    return await db
+      .select({
+        id: parcelRequests.id,
+        platform: parcelRequests.platform,
+        orderLast4: parcelRequests.orderLast4,
+        collectionType: parcelRequests.collectionType,
+        expectedDate: parcelRequests.expectedDate,
+        studentName: students.fullName,
+      })
+      .from(parcelRequests)
+      .leftJoin(students, eq(parcelRequests.studentId, students.id))
+      .where(
+        and(
+          eq(parcelRequests.status, 'pending'),
+          or(
+            ilike(parcelRequests.platform, searchTerm),
+            ilike(parcelRequests.orderLast4, searchTerm),
+            ilike(students.fullName, searchTerm)
+          )
+        )
+      )
+      .orderBy(parcelRequests.createdAt);
+  }
+
+  async getReadyForPickupSummary(limit: number) {
+    return await db
+      .select({
+        id: parcelRequests.id,
+        platform: parcelRequests.platform,
+        orderLast4: parcelRequests.orderLast4,
+        studentName: students.fullName,
+      })
+      .from(parcelRequests)
+      .leftJoin(students, eq(parcelRequests.studentId, students.id))
+      .where(eq(parcelRequests.status, 'ready_for_pickup'))
+      .orderBy(desc(parcelRequests.createdAt))
+      .limit(limit);
+  }
+
+  async getOverdueSummary(limit: number) {
+    return await db
+      .select({
+        id: parcelRequests.id,
+        platform: parcelRequests.platform,
+        orderLast4: parcelRequests.orderLast4,
+        studentName: students.fullName,
+      })
+      .from(parcelRequests)
+      .leftJoin(students, eq(parcelRequests.studentId, students.id))
+      .where(eq(parcelRequests.status, 'overdue'))
+      .orderBy(desc(parcelRequests.createdAt))
+      .limit(limit);
   }
 }
