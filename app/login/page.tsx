@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { isLearnerEmail } from '@/lib/utils';
@@ -69,11 +70,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#FBF6F1] flex flex-col items-center justify-center p-4 text-[#1a1a1a]">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-[#E8E0D8] p-6 space-y-6">
         <div className="flex flex-col items-center justify-center space-y-2 text-center">
-          <div className="w-12 h-12 rounded-xl bg-[#E4572E]/10 flex items-center justify-center">
-            <svg className="w-8 h-8 text-[#E4572E]" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8Z" />
-            </svg>
-          </div>
+          <Image
+            src="/ru-logo.png"
+            alt="Rishihood University Logo"
+            width={180}
+            height={66}
+            className="h-16 w-auto object-contain"
+            priority
+          />
           <h1 className="text-2xl font-bold tracking-tight text-[#1a1a1a]">rishihood university</h1>
           <p className="text-xs uppercase tracking-widest text-[#E4572E] font-semibold">RUCSYS · Gate No. 2</p>
         </div>
