@@ -46,6 +46,7 @@
 
 **Milestone:** Neon Postgres + Drizzle ORM Database Migration & Auth Infrastructure.
 
+- A3 (My Parcel Requests list, `/parcels`) is implemented-pending-manual-verification.
 - A1 (Pre-Register a Parcel) and A2 (Confirmation) screens built and verified end-to-end in browser — form submission creates a real row in Neon via ParcelRequestService, confirmation page reads it back via ParcelRequestRepository.findById and displays it correctly with live capacity data from /api/capacity.
 - Fixed `Platform` enum in `lib/types/index.ts` by adding missing `Zepto` and `Blinkit` values (required by docs/04).
 - Generalized `CapacityCallout` component (previously hardcoded for guard use with "Shelf Capacity" label and `/guard` default href) with an optional `label` prop and no default `href`, now reused for the learner's "Store Room Capacity" indicator on A1/A2.
@@ -58,8 +59,7 @@
 
 ## Next Up (priority order)
 
-1. Build A3 (My Parcel Requests list, `/parcels`) is now the next priority — this also fixes the current 404 users hit right after login since middleware redirects learners to `/parcels`.
-2. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
+1. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
 3. Convert Realtime guard/admin dashboards to polling mechanisms.
 4. Convert OTP edge function to a Next.js API route.
 5. Convert `pg_cron` escalation to a Vercel Cron Job.
@@ -68,7 +68,6 @@
 ## Known Issues / Blockers
 
 - Repositories layer (`lib/repositories/*`) still references Supabase and needs conversion to Drizzle ORM.
-- `app/(learner)/parcels` has a `layout.tsx` but no `page.tsx` yet (confirmed via find), so `/parcels` currently 404s post-login — this is expected, not a bug; building A1-A3 is next.
 
 ## Decisions & Deviations from `/docs` specs
 

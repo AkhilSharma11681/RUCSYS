@@ -31,4 +31,16 @@ export class ParcelRequestService {
     const created = await this.parcelRequestRepo.create(data);
     return { success: true, request: created };
   }
+
+  async getRequestsByStudentId(studentId: string) {
+    return await this.parcelRequestRepo.findByStudent(studentId);
+  }
+
+  async cancelRequest(id: string, studentId: string) {
+    const cancelled = await this.parcelRequestRepo.cancel(id, studentId);
+    if (!cancelled) {
+      return { success: false, error: 'Request not found or cannot be cancelled' };
+    }
+    return { success: true, request: cancelled };
+  }
 }

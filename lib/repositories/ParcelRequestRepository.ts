@@ -1,4 +1,4 @@
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { parcelRequests } from '@/lib/db/schema';
 
@@ -38,6 +38,22 @@ export class ParcelRequestRepository {
       .select()
       .from(parcelRequests)
       .where(eq(parcelRequests.id, id));
+
+    return result || null;
+  }
+
+  async cancel(id: string, studentId: string) {
+    const [result] = await db
+      .update(parcelRequests)
+      .set({ status: 'cancelled' })
+      .where(
+        and(
+          eq(parcelRequests.id, id),
+          eq(parcelRequests.studentId, studentId),
+          eq(parcelRequests.status, 'pending')
+        )
+      )
+      .returning();
 
     return result || null;
   }
