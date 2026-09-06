@@ -59,15 +59,14 @@
 
 ## Next Up (priority order)
 
-1. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
-3. Convert Realtime guard/admin dashboards to polling mechanisms.
-4. Convert OTP edge function to a Next.js API route.
-5. Convert `pg_cron` escalation to a Vercel Cron Job.
-6. Build Guard App screens B1–B2, OTP flow, and Admin Dashboard screens C1–C3.
+1. Convert OTP edge function to a Next.js API route.
+2. Convert `pg_cron` escalation to a Vercel Cron Job.
+3. Build Guard App screens (B1–B2) and OTP verification workflow (B4), including building dashboard data fetching via polling (not Supabase Realtime) from the start.
+4. Build Admin Dashboard screens (C1–C3).
 
 ## Known Issues / Blockers
 
-- Repositories layer (`lib/repositories/*`) still references Supabase and needs conversion to Drizzle ORM.
+- (None currently) — Repositories layer (`lib/repositories/*`) has been fully converted to Drizzle ORM and verified with zero Supabase dependencies.
 
 ## Decisions & Deviations from `/docs` specs
 
