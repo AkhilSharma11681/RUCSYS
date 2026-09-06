@@ -104,7 +104,7 @@ equivalent to a locker pickup code — accepted because:
    - On mismatch: increment `otp_attempts`. After **5** consecutive failed
      attempts, lock further verification on that parcel (return a distinct
      "locked — ask the learner to regenerate their code" response) rather
-     than allowing unlimited guesses against a 6-digit space.
+     than allowing unlimited guesses against a 4-digit space.
 
 ## 5. State Machine Reference
 
@@ -137,5 +137,5 @@ overdue  ◄── (set alongside ready_for_pickup once notify_after_days passes
 | `order_last4` | Exactly 4 digits, numeric only. |
 | `expected_date` | Not in the past at submission time. |
 | `parcel_number` | Must be unique among currently-uncollected parcels (enforced by the partial unique index — see schema). |
-| `otp_code` | 6 digits, hashed at rest, max 5 verification attempts before lockout. |
+| `otp_code` | 4 digits, hashed at rest, max 5 verification attempts before lockout. |
 | `platform` | One of the fixed set (Amazon, Flipkart, Myntra, Zepto, Meesho, Blinkit, Other) — validate against an enum/lookup, not free text, to keep analytics clean. |

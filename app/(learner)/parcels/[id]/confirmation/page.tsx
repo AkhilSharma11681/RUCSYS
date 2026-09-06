@@ -105,7 +105,7 @@ export default async function ConfirmationPage({ params }: { params: Promise<{ i
             },
             {
               title: 'Collect with OTP',
-              description: 'Show the 6-digit OTP to the guard and collect your parcel.',
+              description: 'Show the 4-digit OTP to the guard and collect your parcel.',
               icon: <ShieldCheck className="w-4 h-4" />
             },
           ]}

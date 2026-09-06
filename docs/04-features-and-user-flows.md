@@ -81,7 +81,7 @@ fields as A2 plus a status timeline. If status is `arrived` but not yet
 Displays:
 - Parcel summary (platform, order ID last 4, assigned parcel number, storage
   location, arrival date/time).
-- The **6-digit one-time code**, large and legible. This code was generated
+- The **4-digit one-time code**, large and legible. This code was generated
   once when the parcel arrived (server-side, via `OtpService`) — it does
   **not** auto-refresh every 60 seconds. Fetch it once; do not poll.
 - A **"Regenerate Code"** button — calls the OTP Edge Function to invalidate

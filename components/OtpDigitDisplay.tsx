@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface OtpDigitDisplayProps {
-  code: string; // 6-digit string e.g. "849204"
+  code: string; // 4-digit string e.g. "8492"
   className?: string;
 }
 
@@ -11,8 +11,8 @@ export const OtpDigitDisplay: React.FC<OtpDigitDisplayProps> = ({
   code,
   className = '',
 }) => {
-  // Ensure code is formatted to 6 characters
-  const digits = code.padStart(6, ' ').slice(0, 6).split('');
+  // Ensure code is formatted to 4 characters
+  const digits = code.padStart(4, ' ').slice(0, 4).split('');
 
   return (
     <div className={`flex items-center justify-center space-x-2.5 sm:space-x-3.5 ${className}`}>

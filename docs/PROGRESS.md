@@ -74,6 +74,7 @@
 - Allowed domain restrictions updated: Learner emails now support both `@rishihood.edu.in` and `@nst.rishihood.edu.in` domains across client logic and database constraints.
 - Switched database provider from Supabase to Neon Postgres using Drizzle ORM (`drizzle-orm/neon-http`).
 - Changed Auth model from Supabase Auth/NextAuth to custom email+password authentication storing `password_hash` on user records and maintaining sessions via NextAuth Credentials provider with JWT.
+- OTP length changed from 6-digit to 4-digit, and hashing changed from the doc's HMAC suggestion confirmed as final (not bcrypt) — chosen for fast guard-side verification over password-grade slowness.
 
 ## Environment / Setup Notes
 
