@@ -46,6 +46,9 @@
 
 **Milestone:** Neon Postgres + Drizzle ORM Database Migration & Auth Infrastructure.
 
+- A1 (Pre-Register a Parcel) and A2 (Confirmation) screens built and verified end-to-end in browser — form submission creates a real row in Neon via ParcelRequestService, confirmation page reads it back via ParcelRequestRepository.findById and displays it correctly with live capacity data from /api/capacity.
+- Fixed `Platform` enum in `lib/types/index.ts` by adding missing `Zepto` and `Blinkit` values (required by docs/04).
+- Generalized `CapacityCallout` component (previously hardcoded for guard use with "Shelf Capacity" label and `/guard` default href) with an optional `label` prop and no default `href`, now reused for the learner's "Store Room Capacity" indicator on A1/A2.
 - Dropped Supabase entirely; migrating to Neon Postgres + `drizzle-orm`.
 - Auth is fully working end-to-end: login tested and verified for both a seeded test student (`test.student@rishihood.edu.in`, role=learner, redirects to `/parcels`) and a seeded test guard (`guard@rishihood.edu.in`, role=guard, redirects to `/guard`) via the new Credentials-based NextAuth + Neon + bcrypt flow. Confirmed `middleware.ts` required no changes — it was already provider-agnostic.
 - Clean schema applied to Neon via 3 migration files under `lib/db/migrations/` (`0000_enums_and_users`, `0001_parcels_and_config`, `0002_indexes_and_views`) — verified via psql, all 6 core tables present with `password_hash` columns.
@@ -55,12 +58,12 @@
 
 ## Next Up (priority order)
 
-1. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
-2. Implement Auth system (login/signup, password hashing, JWT session cookies, and role-gating middleware).
+1. Build A3 (My Parcel Requests list, `/parcels`) is now the next priority — this also fixes the current 404 users hit right after login since middleware redirects learners to `/parcels`.
+2. Convert repositories layer (`lib/repositories/*`) from Supabase to Drizzle queries against `lib/db`.
 3. Convert Realtime guard/admin dashboards to polling mechanisms.
 4. Convert OTP edge function to a Next.js API route.
 5. Convert `pg_cron` escalation to a Vercel Cron Job.
-6. Build Learner App screens A1–A3, Guard App screens B1–B2, OTP flow, and Admin Dashboard screens C1–C3.
+6. Build Guard App screens B1–B2, OTP flow, and Admin Dashboard screens C1–C3.
 
 ## Known Issues / Blockers
 
@@ -104,3 +107,8 @@
 - Asked to: Update PROGRESS.md to document auth implementation and end-to-end testing with Credentials provider.
 - Did: Rewrote `auth.ts` off Resend/DrizzleAdapter onto NextAuth Credentials provider with bcrypt password comparison against Neon DB (`students` and `guards` tables). Updated `/app/login/page.tsx` for password input fields across Learner and Staff tabs. Verified auth end-to-end via curl and browser for both test student (`test.student@rishihood.edu.in`) and test guard (`guard@rishihood.edu.in`), confirming proper role-based redirects (`/parcels` and `/guard`). Confirmed `middleware.ts` required no changes as it was already provider-agnostic.
 - Left off at: Ready to build Learner App screens A1–A3.
+
+### Session 5 — Learner UI Screens A1 & A2 (2026-09-05)
+- Asked to: Build the Pre-Register a Parcel (A1) and Confirmation (A2) screens.
+- Did: Completed screens A1 (`app/(learner)/parcels/new/page.tsx`) and A2 (`app/(learner)/parcels/[id]/confirmation/page.tsx`). Added Zepto and Blinkit to Platform enum. Generalized CapacityCallout component. Created `/api/capacity` to feed live data. Verified end-to-end form posting and confirmation reading from Neon DB using Next.js server actions and repository patterns.
+- Left off at: Ready to build A3 My Parcel Requests screen (`/parcels`).

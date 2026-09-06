@@ -27,6 +27,8 @@ export enum Platform {
   FLIPKART = 'Flipkart',
   MYNTRA = 'Myntra',
   MEESHO = 'Meesho',
+  ZEPTO = 'Zepto',
+  BLINKIT = 'Blinkit',
   BLUEDART = 'BlueDart',
   DELHIVERY = 'Delhivery',
   OTHER = 'Other',

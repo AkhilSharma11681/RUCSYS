@@ -38,8 +38,8 @@ export const StatusPill: React.FC<StatusPillProps> = ({
     colorClasses = 'bg-[#FDECEA] text-[#C0392B] border-[#FADBD8]';
     label = 'Immediate Pickup';
   } else if (s === 'can_be_stored') {
-    colorClasses = 'bg-[#F5EDE6] text-[#6B6B6B] border-[#E8E0D8]/40';
-    label = 'Storage OK';
+    colorClasses = 'bg-[#E8F5E9] text-[#2E7D4F] border-[#C8E6C9]';
+    label = 'Can be stored';
   }
 
   const baseClasses = `inline-flex items-center justify-center font-medium rounded-full ${

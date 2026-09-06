@@ -8,13 +8,15 @@ interface CapacityCalloutProps {
   currentPackages: number;
   maxPackages?: number;
   href?: string;
+  label?: string;
   className?: string;
 }
 
 export const CapacityCallout: React.FC<CapacityCalloutProps> = ({
   currentPackages,
   maxPackages = 100, // By default 100 per specs
-  href = '/guard',
+  href,
+  label = 'Shelf Capacity',
   className = '',
 }) => {
   const percentage = Math.min(100, Math.round((currentPackages / maxPackages) * 100));
@@ -43,7 +45,7 @@ export const CapacityCallout: React.FC<CapacityCalloutProps> = ({
       <div className="flex items-center justify-between">
         <div className={`flex items-center space-x-2 ${textClass}`}>
           <Package className="w-5 h-5 stroke-[2]" />
-          <span className="font-semibold text-sm">Shelf Capacity</span>
+          <span className="font-semibold text-sm">{label}</span>
         </div>
         {!isFull ? (
           <span className={`text-xs font-bold ${textClass}`}>
