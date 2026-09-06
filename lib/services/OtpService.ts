@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { eq } from 'drizzle-orm';
+import { eq, and, lt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { parcels } from '@/lib/db/schema';
 
@@ -158,17 +158,26 @@ export class OtpService {
 
       return { status: 'success' };
     } else {
-      const newAttempts = parcel.otpAttempts + 1;
-      await db
+      const [updated] = await db
         .update(parcels)
-        .set({ otpAttempts: newAttempts })
-        .where(eq(parcels.id, parcelId));
+        .set({ otpAttempts: sql`${parcels.otpAttempts} + 1` })
+        .where(
+          and(
+            eq(parcels.id, parcelId),
+            lt(parcels.otpAttempts, 5)
+          )
+        )
+        .returning();
 
-      if (newAttempts >= 5) {
-        return { status: 'locked', attempts: newAttempts };
+      if (!updated) {
+        return { status: 'locked', attempts: 5 };
       }
 
-      return { status: 'invalid', attempts: newAttempts };
+      if (updated.otpAttempts >= 5) {
+        return { status: 'locked', attempts: updated.otpAttempts };
+      }
+
+      return { status: 'invalid', attempts: updated.otpAttempts };
     }
   }
 }
