@@ -63,6 +63,7 @@
 2. Convert `pg_cron` escalation to a Vercel Cron Job.
 3. Build Guard App screens (B1–B2) and OTP verification workflow (B4), including building dashboard data fetching via polling (not Supabase Realtime) from the start.
 4. Build Admin Dashboard screens (C1–C3).
+5. Build learner screens A4 (/parcels/[id] detail view) and A5 (/parcels/[id]/collect — OTP display) — currently missing; OTP API routes exist but have no learner-facing UI to call them yet.
 
 ## Known Issues / Blockers
 
