@@ -47,6 +47,7 @@
 **Milestone:** Neon Postgres + Drizzle ORM Database Migration & Auth Infrastructure.
 
 - A3 (My Parcel Requests list, `/parcels`) is implemented-pending-manual-verification.
+- B2 (Mark Parcel Arrived, `/guard/arrivals/[requestId]`) is built and verified: parcel insert, DB trigger status flip, and OTP generation all confirmed working via manual test with real data.
 - A1 (Pre-Register a Parcel) and A2 (Confirmation) screens built and verified end-to-end in browser — form submission creates a real row in Neon via ParcelRequestService, confirmation page reads it back via ParcelRequestRepository.findById and displays it correctly with live capacity data from /api/capacity.
 - Fixed `Platform` enum in `lib/types/index.ts` by adding missing `Zepto` and `Blinkit` values (required by docs/04).
 - Generalized `CapacityCallout` component (previously hardcoded for guard use with "Shelf Capacity" label and `/guard` default href) with an optional `label` prop and no default `href`, now reused for the learner's "Store Room Capacity" indicator on A1/A2.
@@ -61,7 +62,7 @@
 
 1. Convert OTP edge function to a Next.js API route.
 2. Convert `pg_cron` escalation to a Vercel Cron Job.
-3. Build Guard App screens (B1–B2) and OTP verification workflow (B4), including building dashboard data fetching via polling (not Supabase Realtime) from the start.
+3. Build Guard App dashboard screen (B1) and OTP verification workflow (B4), including building dashboard data fetching via polling (not Supabase Realtime) from the start.
 4. Build Admin Dashboard screens (C1–C3).
 5. Build learner screens A4 (/parcels/[id] detail view) and A5 (/parcels/[id]/collect — OTP display) — currently missing; OTP API routes exist but have no learner-facing UI to call them yet.
 
