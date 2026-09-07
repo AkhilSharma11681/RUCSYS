@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { isLearnerEmail } from '@/lib/utils';
 
 export default function LoginPage() {
@@ -54,11 +54,20 @@ export default function LoginPage() {
         password,
         redirect: false,
       });
-      setLoading(false);
+
       if (res?.error) {
+        setLoading(false);
         setMessage({ type: 'error', text: 'Incorrect email or password.' });
       } else {
-        router.push('/guard');
+        const session = await getSession();
+        const role = (session?.user as any)?.role;
+        setLoading(false);
+
+        if (role === 'admin') {
+          router.push('/admin');
+        } else {
+          router.push('/guard');
+        }
       }
     } catch (err: any) {
       setLoading(false);
