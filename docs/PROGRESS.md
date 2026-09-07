@@ -100,6 +100,7 @@
 
 ## Environment / Setup Notes
 
+- Live Production URL: `https://rucsys-ywyd.vercel.app`
 - Local dev URL: `http://localhost:3000`
 - Run `npm run dev` to start the dev server.
 - Run `npm run test` to execute unit tests.
