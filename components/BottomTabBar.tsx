@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   Package,
   PlusCircle,
-  History,
   LayoutGrid,
   PackagePlus,
   Inbox,
@@ -51,7 +50,11 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ app }) => {
       : adminTabs;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E0D8] px-2 py-1.5 flex justify-around items-center max-w-md mx-auto">
+    <nav
+      className={`fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E0D8] px-2 py-1.5 flex justify-around items-center ${
+        app === 'admin' ? 'max-w-4xl' : 'max-w-md'
+      } mx-auto shadow-sm`}
+    >
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = pathname === tab.href;

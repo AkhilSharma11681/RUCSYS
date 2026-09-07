@@ -123,24 +123,6 @@ export default function LoginPage() {
     }
   };
 
-  const fillTestCredentials = (role: 'student' | 'guard' | 'admin') => {
-    setMessage(null);
-    if (role === 'student') {
-      setActiveTab('learner');
-      setLearnerMode('signin');
-      setEmail('test.student@rishihood.edu.in');
-      setPassword('password123');
-    } else if (role === 'guard') {
-      setActiveTab('staff');
-      setEmail('guard@rishihood.edu.in');
-      setPassword('password123');
-    } else if (role === 'admin') {
-      setActiveTab('staff');
-      setEmail('admin@admin.com');
-      setPassword('password123');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#FBF6F1] flex flex-col items-center justify-center p-4 text-[#1a1a1a]">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-[#E8E0D8] p-6 space-y-6">
@@ -177,36 +159,6 @@ export default function LoginPage() {
           >
             Guard / Admin
           </button>
-        </div>
-
-        {/* Quick Demo Credentials Bar */}
-        <div className="bg-[#FAF8F5] border border-[#E8E0D8] rounded-xl p-3 text-xs space-y-2">
-          <div className="font-semibold text-[#1a1a1a] flex items-center justify-between">
-            <span>⚡ Quick Demo Logins (Click to Fill):</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => fillTestCredentials('student')}
-              className="px-2.5 py-1 bg-white hover:bg-[#F3EDE6] border border-[#E8E0D8] rounded-lg font-medium text-[#E4572E] transition-all shadow-2xs"
-            >
-              🎓 Learner
-            </button>
-            <button
-              type="button"
-              onClick={() => fillTestCredentials('guard')}
-              className="px-2.5 py-1 bg-white hover:bg-[#F3EDE6] border border-[#E8E0D8] rounded-lg font-medium text-[#2E7D4F] transition-all shadow-2xs"
-            >
-              🛡️ Guard
-            </button>
-            <button
-              type="button"
-              onClick={() => fillTestCredentials('admin')}
-              className="px-2.5 py-1 bg-white hover:bg-[#F3EDE6] border border-[#E8E0D8] rounded-lg font-medium text-[#2C3E50] transition-all shadow-2xs"
-            >
-              🏛️ Admin
-            </button>
-          </div>
         </div>
 
         {message && (
