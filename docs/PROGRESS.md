@@ -79,6 +79,7 @@
 - OTP length changed from 6-digit to 4-digit, and hashing changed from the doc's HMAC suggestion confirmed as final (not bcrypt) — chosen for fast guard-side verification over password-grade slowness.
 - Storage location suggestion (B2): since docs specify no algorithm, implemented as 'suggest most recently used storage_location value' (guard can always override via free text) — simplest option that still reflects real shelving behavior, since no fixed shelf list is defined anywhere in the schema or docs.
 - Atomic OTP failed-attempt increment: replaced two-step read-then-update in `OtpService.verify()` with an atomic `UPDATE` with `< 5` check in `WHERE` and `RETURNING` to eliminate lockout-bypass race conditions under concurrent requests.
+- Unique constraint on parcels.request_id: Added database-level UNIQUE constraint on parcels(request_id) to strictly enforce 1:1 request-to-parcel relationship and prevent duplicate parcel records upon arrival.
 
 ## Environment / Setup Notes
 

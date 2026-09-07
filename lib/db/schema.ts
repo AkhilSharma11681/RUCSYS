@@ -55,7 +55,9 @@ export const parcelRequests = pgTable('parcel_requests', {
 // 4. Parcels
 export const parcels = pgTable('parcels', {
   id: uuid('id').defaultRandom().primaryKey(),
-  requestId: uuid('request_id').references(() => parcelRequests.id, { onDelete: 'set null' }),
+  requestId: uuid('request_id')
+    .references(() => parcelRequests.id, { onDelete: 'set null' })
+    .unique(),
   guardId: uuid('guard_id')
     .notNull()
     .references(() => guards.id),

@@ -36,19 +36,32 @@ export async function storeParcelAction(formData: FormData) {
   const parcelRepo = new ParcelRepository();
   const otpService = new OtpService();
 
-  // 1. Insert Parcel
-  const newParcel = await parcelRepo.createParcel({
-    requestId,
-    guardId,
-    parcelNumber,
-    storageLocation,
-    notes,
-    isUnregistered: false,
-  });
+  let newParcel;
+  try {
+    // 1. Insert Parcel
+    newParcel = await parcelRepo.createParcel({
+      requestId,
+      guardId,
+      parcelNumber,
+      storageLocation,
+      notes,
+      isUnregistered: false,
+    });
 
-  // 2. Generate OTP
-  await otpService.generate(newParcel.id);
+    // 2. Generate OTP
+    await otpService.generate(newParcel.id);
+  } catch (error: any) {
+    if (
+      error?.code === '23505' ||
+      error?.message?.includes('parcels_request_id_unique') ||
+      error?.message?.includes('unique constraint')
+    ) {
+      return { success: false, error: 'This parcel has already been marked as arrived' };
+    }
+    console.error('Failed to store parcel:', error);
+    return { success: false, error: 'Failed to process parcel arrival' };
+  }
 
-  // 3. Redirect back to dashboard (never wrapped in try-catch in here)
+  // 3. Redirect back to dashboard
   redirect('/guard');
 }
