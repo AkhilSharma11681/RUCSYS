@@ -45,6 +45,26 @@ async function seed() {
       .returning();
     console.log(`Inserted test guard: ${newGuard.email}`);
   }
+
+  const adminEmail = 'admin@admin.com';
+  const existingAdmin = await db
+    .select()
+    .from(guards)
+    .where(eq(guards.email, adminEmail));
+
+  if (existingAdmin.length > 0) {
+    console.log(`Admin with email ${adminEmail} already exists. Skipping.`);
+  } else {
+    const [newAdmin] = await db
+      .insert(guards)
+      .values({
+        fullName: 'Test Admin',
+        email: adminEmail,
+        passwordHash,
+      })
+      .returning();
+    console.log(`Inserted test admin: ${newAdmin.email}`);
+  }
 }
 
 seed()
