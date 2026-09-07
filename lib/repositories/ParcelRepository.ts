@@ -1,6 +1,6 @@
-import { count, isNull, desc, eq, isNotNull } from 'drizzle-orm';
+import { count, isNull, desc, eq, isNotNull, and, or, ilike, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { parcels } from '@/lib/db/schema';
+import { parcels, parcelRequests, students } from '@/lib/db/schema';
 
 export class ParcelRepository {
   async countActive(): Promise<number> {
@@ -74,5 +74,54 @@ export class ParcelRepository {
       .returning();
 
     return result;
+  }
+
+  async searchAwaitingCollection(query: string = '') {
+    const baseQuery = db
+      .select({
+        id: parcels.id,
+        parcelNumber: parcels.parcelNumber,
+        storageLocation: parcels.storageLocation,
+        isUnregistered: parcels.isUnregistered,
+        arrivedAt: parcels.arrivedAt,
+        otpAttempts: parcels.otpAttempts,
+        platform: parcelRequests.platform,
+        orderLast4: parcelRequests.orderLast4,
+        collectionType: parcelRequests.collectionType,
+        status: parcelRequests.status,
+        studentName: students.fullName,
+      })
+      .from(parcels)
+      .leftJoin(parcelRequests, eq(parcels.requestId, parcelRequests.id))
+      .leftJoin(students, eq(parcelRequests.studentId, students.id));
+
+    if (!query || query.trim() === '') {
+      return await baseQuery
+        .where(isNull(parcels.collectedAt))
+        .orderBy(desc(parcels.arrivedAt));
+    }
+
+    const searchTerm = `%${query.trim()}%`;
+    const isNumeric = /^\d+$/.test(query.trim());
+    const numericVal = isNumeric ? parseInt(query.trim(), 10) : null;
+
+    const conditions = [
+      ilike(parcelRequests.orderLast4, searchTerm),
+      ilike(parcelRequests.platform, searchTerm),
+      ilike(students.fullName, searchTerm),
+    ];
+
+    if (numericVal !== null) {
+      conditions.push(eq(parcels.parcelNumber, numericVal));
+    }
+
+    return await baseQuery
+      .where(
+        and(
+          isNull(parcels.collectedAt),
+          or(...conditions)
+        )
+      )
+      .orderBy(desc(parcels.arrivedAt));
   }
 }
