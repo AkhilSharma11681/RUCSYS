@@ -112,4 +112,44 @@ export class EscalationService {
 
     return summary;
   }
+
+  async logManualCall(parcelId: string) {
+    const existing = await db
+      .select()
+      .from(escalationLog)
+      .where(
+        and(
+          eq(escalationLog.parcelId, parcelId),
+          eq(escalationLog.stage, EscalationStage.CALL)
+        )
+      )
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(escalationLog).values({
+        parcelId,
+        stage: EscalationStage.CALL,
+      });
+    }
+
+    return true;
+  }
+
+  async getStagesForParcels(parcelIds: string[]) {
+    if (parcelIds.length === 0) return new Map<string, EscalationStage[]>();
+    const logs = await db
+      .select()
+      .from(escalationLog)
+      .where(inArray(escalationLog.parcelId, parcelIds))
+      .orderBy(escalationLog.triggeredAt);
+
+    const result = new Map<string, EscalationStage[]>();
+    for (const log of logs) {
+      const arr = result.get(log.parcelId) || [];
+      arr.push(log.stage as EscalationStage);
+      result.set(log.parcelId, arr);
+    }
+    return result;
+  }
 }
+

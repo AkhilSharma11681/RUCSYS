@@ -54,7 +54,7 @@ export class ParcelRepository {
   }
 
   async createParcel(data: {
-    requestId: string;
+    requestId: string | null;
     guardId: string;
     parcelNumber: number;
     storageLocation: string;
@@ -124,4 +124,61 @@ export class ParcelRepository {
       )
       .orderBy(desc(parcels.arrivedAt));
   }
+
+  async getOverdueParcels() {
+    return await db
+      .select({
+        id: parcels.id,
+        parcelNumber: parcels.parcelNumber,
+        storageLocation: parcels.storageLocation,
+        arrivedAt: parcels.arrivedAt,
+        platform: parcelRequests.platform,
+        orderLast4: parcelRequests.orderLast4,
+        studentName: students.fullName,
+      })
+      .from(parcels)
+      .innerJoin(parcelRequests, eq(parcels.requestId, parcelRequests.id))
+      .leftJoin(students, eq(parcelRequests.studentId, students.id))
+      .where(
+        and(
+          isNull(parcels.collectedAt),
+          eq(parcelRequests.status, 'overdue')
+        )
+      )
+      .orderBy(parcels.arrivedAt);
+  }
+
+  async getUnregisteredParcels() {
+    return await db
+      .select({
+        id: parcels.id,
+        parcelNumber: parcels.parcelNumber,
+        storageLocation: parcels.storageLocation,
+        arrivedAt: parcels.arrivedAt,
+        notes: parcels.notes,
+        isUnregistered: parcels.isUnregistered,
+      })
+      .from(parcels)
+      .where(
+        and(
+          isNull(parcels.collectedAt),
+          eq(parcels.isUnregistered, true)
+        )
+      )
+      .orderBy(desc(parcels.arrivedAt));
+  }
+
+  async linkToRequest(parcelId: string, requestId: string) {
+    const [updated] = await db
+      .update(parcels)
+      .set({
+        requestId,
+        isUnregistered: false,
+      })
+      .where(eq(parcels.id, parcelId))
+      .returning();
+
+    return updated;
+  }
 }
+

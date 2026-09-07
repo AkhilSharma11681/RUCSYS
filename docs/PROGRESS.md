@@ -44,36 +44,41 @@
 
 ## Current State
 
-**Milestone:** Complete Admin Dashboard (C1–C3) & Guard Collection Verification (B4) on Neon Postgres + Drizzle ORM.
+**Milestone:** Complete Learner App (A1–A5), Guard App Suite (B1–B5), & Admin Dashboard (C1–C3) on Neon Postgres + Drizzle ORM.
 
+- **Learner App (A1–A5) fully implemented and verified:**
+  - **A1 Pre-Register (`/parcels/new`):** Multi-platform parcel registration with live store room capacity indicator.
+  - **A2 Confirmation (`/parcels/[id]/confirmation`):** Step explainer and status confirmation reading from Neon DB.
+  - **A3 My Parcels (`/parcels`):** Filtered parcel list (Active, Collected, Cancelled) matching mobile mockups, with request cancellation action, and link to unmatched parcels search.
+  - **A4 Request Detail (`/parcels/[id]`):** Timeline view of parcel lifecycle with current status, storage location, and actions.
+  - **A5 Collect & Delegate (`/parcels/[id]/collect`):** Large 4-digit collection code display with instructions, copyable delegate message, and OTP regeneration with student confirmation modal (`ClientRegenerateButton.tsx`).
+  - **Unmatched Parcels Search (`/parcels/unmatched`):** Filter unlinked packages by platform and order number, with instructions to claim in-person at Gate No. 2.
+- **Guard App (B1–B5) fully implemented and verified:**
+  - **B1 Dashboard (`/guard`):** Awaiting arrival and awaiting collection parcel lists, search/filter, capacity indicator, and quick actions.
+  - **B2 Mark Arrived (`/guard/arrivals/[requestId]`):** Parcel shelf assignment, auto-suggested recent storage location, status flip, and OTP generation verified with real data in Neon DB.
+  - **B3 Unregistered Parcel Quick Add, Catalog & Linking (`/guard/arrivals/new` & `/guard/unregistered`):** Quick logging for unmatched Gate No. 2 arrivals; catalog with search and interactive student linking modal (`linkUnregisteredParcelAction`) to match unregistered arrivals with learner pre-registrations.
+  - **B4 Collect Parcel (`/guard/collect`):** Search awaiting-collection parcels by parcel number, order ID, or student name; 4-digit OTP verification with lockout protection (atomic attempt counter) and collection confirmation.
+  - **B5 Overdue Parcels (`/guard/overdue`):** Filterable list of overdue parcels with calculated days overdue based on store capacity config thresholds, escalation stage badges, and manual guard call logging (`logCallAction` -> `escalation_log`).
 - **Admin Dashboard (C1–C3) fully implemented and verified:**
   - **C1 Overview (`/admin`):** KPI cards (active awaiting collection, overdue count, 7-day arrivals/collections, avg dwell time, store capacity %) and 7-day arrival volume bar chart powered by `AnalyticsRepository` live aggregations.
   - **C2 System Settings (`/admin/settings`):** Configures physical store max capacity, capacity warning threshold %, and overdue parcel escalation timeline stages (reminder, notification, guard call, director deadline) via `CapacityConfigRepository`.
   - **C3 Guard & Gate Management (`/admin/guards`):** Guard list, account deletion, and new guard account creation with auto-generated secure 12-char random passwords (bcrypt-hashed) with one-time plaintext credential display via `GuardRepository`.
   - **Admin Navigation & Auth:** Role-aware staff login routing (`admin` -> `/admin`, `guard` -> `/guard`), role-gated Server Components, and Admin layout with persistent header and bottom navigation bar (`Overview`, `Settings`, `Guards`).
-- **Guard App (B1, B2, B4) built and verified:**
-  - **B1 Dashboard (`/guard`):** Awaiting arrival and awaiting collection parcel lists, search/filter, and quick actions.
-  - **B2 Mark Arrived (`/guard/arrivals/[requestId]`):** Parcel shelf assignment, auto-suggested recent storage location, status flip, and OTP generation verified with real data in Neon DB.
-  - **B4 Collect Parcel (`/guard/collect`):** Search awaiting-collection parcels by parcel number, order ID, or student name; 4-digit OTP verification with lockout protection (atomic attempt counter) and collection confirmation.
-- **Learner App (A1–A3) built and verified:**
-  - **A1 Pre-Register (`/parcels/new`):** Multi-platform parcel registration with live store room capacity indicator.
-  - **A2 Confirmation (`/parcels/[id]/confirmation`):** Step explainer and status confirmation reading from Neon DB.
-  - **A3 My Parcels (`/parcels`):** Filtered parcel list (Active, Collected, Cancelled) matching mobile mockups, with request cancellation action.
+- **Escalation Cron Route:**
+  - `/api/cron/escalate` secured with `CRON_SECRET` invoking `EscalationService.runEscalationSweep()` for updating parcel statuses from `ready_for_pickup` to `overdue` when dwell time exceeds configured limit.
 - **Database & Architecture:**
   - Fully migrated to Neon Postgres + Drizzle ORM (`drizzle-orm/neon-http`). All repositories (`ParcelRequestRepository`, `ParcelRepository`, `CapacityConfigRepository`, `AnalyticsRepository`, `GuardRepository`) use Drizzle ORM with zero Supabase dependencies.
   - NextAuth Credentials provider with bcrypt password hashing against Neon tables (`students`, `guards`). Tested with student, guard, and admin accounts.
 
 ## Next Up (priority order)
 
-1. Convert `pg_cron` escalation logic into a Vercel Cron Job / Scheduled API route (`/api/cron/escalate-overdue`) to update overdue parcel escalation stages automatically.
-2. Build Screen B3 (Unregistered Parcel Arrival logging for guards at Gate No. 2) and matching Learner Claim flow.
-3. Build Screen B5 (Overdue Parcels management and manual escalation view for guards).
-4. Build Learner screens A4 (`/parcels/[id]` detail view) and A5 (`/parcels/[id]/collect` OTP and delegate code display).
-5. Comprehensive end-to-end integration and smoke testing across Learner, Guard, and Admin user flows.
+1. Run end-to-end integration and smoke tests across all learner, guard, and admin user journeys.
+2. Push all local commits to remote repository branch `origin/feature/neon-migration`.
+3. Set up Vercel project deployment and configure Cron Jobs in `vercel.json` pointing to `/api/cron/escalate`.
 
 ## Known Issues / Blockers
 
-- (None currently) — All core user flows across Learner (A1-A3), Guard (B1, B2, B4), and Admin (C1-C3) compile cleanly, pass SSR auth validation, and are synchronized with `origin/feature/neon-migration`.
+- (None currently) — All core user flows across Learner (A1-A5), Guard (B1-B5), and Admin (C1-C3) compile cleanly, pass SSR auth validation, and are verified with `npm run build`.
 
 ## Decisions & Deviations from `/docs` specs
 
@@ -82,7 +87,8 @@
 - **Switched database provider:** Migrated from Supabase to Neon Postgres using Drizzle ORM (`drizzle-orm/neon-http`).
 - **Auth model:** Custom email+password authentication storing `password_hash` on user records (`students`, `guards`) with NextAuth Credentials provider and JWT session management. Role-aware redirect handles learners (`/parcels`), guards (`/guard`), and admins (`/admin`).
 - **OTP algorithm & lockout:** OTP generated as 4-digit code with HMAC verification. Atomic counter increment on failed attempts (`attempts < 5`) in `WHERE` clause prevents race-condition lockout bypasses.
-- **Storage location suggestion (B2):** Suggests most recently used `storage_location` value as default, allowing guard free-text override.
+- **Storage location suggestion (B2/B3):** Suggests most recently used `storage_location` value as default, allowing guard free-text override.
+- **Unregistered Parcel Metadata (B3):** Encapsulated label details (`Recipient Name`, `Platform`, `Order ID`) structured inside `parcels.notes` for unlinked packages (`requestId = null`, `isUnregistered = true`).
 - **Unique constraint on `parcels.request_id`:** Enforces 1:1 request-to-parcel relationship at DB level to prevent duplicate parcels on arrival.
 - **C1 Live Analytics Queries:** Queried live transactional tables via Drizzle ORM aggregations in `AnalyticsRepository` rather than relying on a Postgres materialized view to avoid stale dashboard metrics.
 - **C3 Random Password Generation:** Secure 12-character high-entropy alphanumeric password auto-generated upon guard creation, hashed with bcrypt (salt rounds 10), and displayed once in the admin UI for staff distribution.
@@ -157,4 +163,21 @@
   - Updated staff login to route role-appropriately (`admin` -> `/admin`, `guard` -> `/guard`).
 - **Left off at:** All C1–C3 Admin screens, B1/B2/B4 Guard screens, and A1–A3 Learner screens completed and verified on Neon Postgres. Ready for overdue parcel cron escalation and unregistered parcel paths (B3 / claim).
 
+### Session 8 — Guard App Completion: Overdue Parcels (B5) & Unregistered Parcels (B3) (2026-09-07)
+- **Asked to:** Complete the remaining Guard App workflows: Screen B5 (Overdue Parcels) and Screen B3 (Unregistered Parcel Quick Add & Catalog).
+- **Did:**
+  - Built Screen B5 (`/guard/overdue`): Overdue parcel query in `ParcelRepository.getOverdueParcels()`, stage mapping via `EscalationService.getStagesForParcels()`, days overdue calculations against `CapacityConfigRepository.notifyAfterDays`, and `logCallAction` Server Action for guard telephone follow-up logging.
+  - Built Screen B3 (`/guard/arrivals/new` & `/guard/unregistered`): Quick Add form with platform/label detail capture, parcel number suggestion, storage location autofill, `storeUnregisteredParcelAction`, and unregistered parcel catalog page with search.
+  - Added `ParcelRepository.getUnregisteredParcels()` to query uncollected unlinked packages.
+  - Verified compilation and route generation with `npm run build`.
+- **Left off at:** All Guard screens (B1–B5) and Admin screens (C1–C3) completed. Ready for Learner App screens A4 (Detail View) and A5 (OTP & Delegate View).
 
+### Session 9 — Learner OTP Regeneration (A5), Unmatched Parcels Search & Guard Linking (2026-09-07)
+- **Asked to:** Complete Screen A5 OTP regeneration with modal confirmation, implement the learner Unmatched Parcel Search workflow (`/parcels/unmatched`), add guard unlinked package assignment to student requests, and verify scheduled escalation endpoint.
+- **Did:**
+  - Built Screen A5 OTP regeneration Server Action (`regenerateOtpAction`) and client confirmation dialog (`ClientRegenerateButton.tsx`) to safely invalidate previous collection codes.
+  - Built Learner Unmatched Parcel Search (`/parcels/unmatched`) allowing students to safely filter unregistered Gate No. 2 arrivals by platform and order number.
+  - Built Guard Unregistered Parcel Linking modal and Server Action (`linkUnregisteredParcelAction`) with debounced student search and atomic parcel assignment in `ParcelRepository.linkToRequest()`.
+  - Added `/api/cron/escalate` cron endpoint for automated background escalation sweeps.
+  - Verified production build (`npm run build`) compiles all 18 routes cleanly with zero TypeScript errors.
+- **Left off at:** All Learner (A1-A5), Guard (B1-B5), and Admin (C1-C3) workflows implemented, connected to Neon Postgres + Drizzle ORM, and verified.

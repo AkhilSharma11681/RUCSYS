@@ -8,6 +8,7 @@ import { PlatformIcon } from '@/components/PlatformIcon';
 import { StatusPill } from '@/components/StatusPill';
 import { OtpDigitDisplay } from '@/components/OtpDigitDisplay';
 import { StepExplainer } from '@/components/StepExplainer';
+import { ClientRegenerateButton } from './ClientRegenerateButton';
 import { ParcelRequestRepository } from '@/lib/repositories/ParcelRequestRepository';
 import { ParcelRepository } from '@/lib/repositories/ParcelRepository';
 import { OtpService } from '@/lib/services/OtpService';
@@ -114,16 +115,7 @@ export default async function RequestCollectPage({ params }: { params: Promise<{
         <div className="flex flex-col items-center justify-center mb-6">
           <OtpDigitDisplay code={otpCode} />
 
-          {/* Regenerate Code button (Stubbed for now) */}
-          <button
-            type="button"
-            className="mt-6 flex items-center space-x-2 text-[#E4572E] text-sm font-bold opacity-80 hover:opacity-100 transition-opacity"
-            disabled
-            title="Regenerate code functionality coming soon"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Regenerate Code</span>
-          </button>
+          <ClientRegenerateButton requestId={request.id} />
         </div>
 
         <div className="p-4 bg-[#FFF5F0] border border-[#FCDDC9] rounded-xl">

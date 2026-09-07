@@ -321,6 +321,23 @@ export function MyParcelsClient({ requests }: { requests: SerializedRequest[] })
             </div>
           )}
 
+          {/* Unmatched Parcels Search Link */}
+          <div className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-xs mt-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <h3 className="font-bold text-[#1a1a1a] text-[14px]">Don't see your parcel?</h3>
+                <p className="text-[12px] text-[#6B6B6B]">Search items delivered without pre-registration.</p>
+              </div>
+              <Link
+                href="/parcels/unmatched"
+                className="inline-flex items-center gap-1.5 bg-[#FFF4ED] text-[#E4572E] px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#FFE8DC] transition-colors"
+              >
+                <span>Search</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
           {/* SECTION E: Collected History Section */}
           {collectedRequests.length > 0 && (
             <div className="mt-8 mb-6">
