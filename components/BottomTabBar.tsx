@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   Settings,
   ShieldCheck,
+  Search,
 } from 'lucide-react';
 
 interface BottomTabBarProps {
@@ -25,13 +26,13 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ app }) => {
 
   const learnerTabs = [
     { label: 'Parcels', href: '/parcels', icon: Package },
-    { label: 'Register', href: '/parcels/register', icon: PlusCircle },
-    { label: 'History', href: '/parcels/history', icon: History },
+    { label: 'Register', href: '/parcels/new', icon: PlusCircle },
+    { label: 'Unmatched', href: '/parcels/unmatched', icon: Search },
   ];
 
   const guardTabs = [
     { label: 'Dashboard', href: '/guard', icon: LayoutGrid },
-    { label: 'Arrived', href: '/guard/arrived', icon: PackagePlus },
+    { label: 'Collect', href: '/guard/collect', icon: PackagePlus },
     { label: 'Unregistered', href: '/guard/unregistered', icon: Inbox },
     { label: 'Overdue', href: '/guard/overdue', icon: AlertCircle },
   ];
