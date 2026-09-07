@@ -1,10 +1,10 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { AnalyticsRepository } from '@/lib/repositories/AnalyticsRepository';
-import { StatTile } from '@/components/StatTile';
 import { DetailCard } from '@/components/DetailCard';
 import { ParcelVolumeChart } from './components/ParcelVolumeChart';
-import { Package, Clock, AlertTriangle, TrendingUp, Inbox } from 'lucide-react';
+import { AdminKpiCards } from './components/AdminKpiCards';
+import { Inbox } from 'lucide-react';
 
 export default async function AdminOverviewPage() {
   const session = await auth();
@@ -46,7 +46,10 @@ export default async function AdminOverviewPage() {
 
   // Format delta for Avg Dwell Time
   const dwellDeltaVal = (avgDwellTime.current - avgDwellTime.previous).toFixed(1);
-  const dwellDeltaStr = `${Number(dwellDeltaVal) > 0 ? '+' : ''}${dwellDeltaVal} days vs last month`;
+  const dwellDeltaStr =
+    Number(dwellDeltaVal) === 0 && avgDwellTime.previous === 0
+      ? 'No previous data'
+      : `${Number(dwellDeltaVal) > 0 ? '+' : ''}${dwellDeltaVal} days vs last month`;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -57,32 +60,23 @@ export default async function AdminOverviewPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <StatTile
-          label="This Month"
-          value={parcelsThisMonth.current}
-          subtext={parcelsDeltaStr}
-          icon={Package}
-        />
-        <StatTile
-          label="Avg Dwell Time"
-          value={`${avgDwellTime.current}d`}
-          subtext={Number(dwellDeltaVal) === 0 && avgDwellTime.previous === 0 ? 'No previous data' : dwellDeltaStr}
-          icon={Clock}
-        />
-        <StatTile
-          label="Overdue Rate"
-          value={`${overdueRate.current}%`}
-          subtext="Active parcels only"
-          icon={AlertTriangle}
-        />
-        <StatTile
-          label="Peak Platform"
-          value={peakPlatform.platform}
-          subtext={`${peakPlatform.count} orders`}
-          icon={TrendingUp}
-        />
-      </div>
+      <AdminKpiCards
+        parcelsThisMonth={{
+          current: parcelsThisMonth.current,
+          deltaStr: parcelsDeltaStr,
+        }}
+        avgDwellTime={{
+          current: avgDwellTime.current,
+          deltaStr: dwellDeltaStr,
+        }}
+        overdueRate={{
+          current: overdueRate.current,
+        }}
+        peakPlatform={{
+          platform: peakPlatform.platform,
+          count: peakPlatform.count,
+        }}
+      />
 
       <ParcelVolumeChart data={dailyVolume} />
 
