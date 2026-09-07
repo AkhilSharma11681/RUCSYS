@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useTransition } from 'react';
 import { searchAwaitingCollectionAction } from './actions';
-import { Search, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronUp, Eye } from 'lucide-react';
 import { PrimaryButton } from '@/components/Buttons';
+import { ParcelDetailModal } from '@/components/ParcelDetailModal';
 
 interface AwaitingParcel {
   id: string;
@@ -26,6 +27,7 @@ export function CollectSearchPlaceholder() {
 
   // Selection & Verification state
   const [selectedParcelId, setSelectedParcelId] = useState<string | null>(null);
+  const [selectedDetailParcel, setSelectedDetailParcel] = useState<any | null>(null);
   const [otpCode, setOtpCode] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyStatus, setVerifyStatus] = useState<
@@ -169,18 +171,40 @@ export function CollectSearchPlaceholder() {
                       isSelected ? 'bg-[#FBF6F1]' : ''
                     }`}
                   >
-                    <div>
+                    <div className="min-w-0 flex-1 pr-2">
                       <div className="font-bold text-[#1a1a1a] flex items-center gap-2">
-                        <span>
+                        <span className="truncate">
                           Parcel #{parcel.parcelNumber} &middot; {parcel.studentName}
                         </span>
                       </div>
-                      <div className="text-xs text-[#6B6B6B]">
+                      <div className="text-xs text-[#6B6B6B] truncate">
                         {parcel.platform} &middot; Order ...{parcel.orderLast4} &middot; Location:{' '}
                         {parcel.storageLocation || 'N/A'}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDetailParcel({
+                            id: parcel.id,
+                            parcelNumber: parcel.parcelNumber,
+                            studentName: parcel.studentName,
+                            platform: parcel.platform || undefined,
+                            orderLast4: parcel.orderLast4 || undefined,
+                            storageLocation: parcel.storageLocation,
+                            collectionType: parcel.collectionType,
+                            status: parcel.status || 'arrived',
+                            arrivedAt: parcel.arrivedAt,
+                            isUnregistered: parcel.isUnregistered
+                          });
+                        }}
+                        className="px-2.5 py-1 text-xs font-semibold text-[#6B6B6B] hover:text-[#E4572E] bg-white border border-[#E8E0D8] rounded-lg shadow-2xs transition-colors flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Details</span>
+                      </button>
                       <span className="text-xs px-2.5 py-1 rounded-full bg-[#FFF6F0] text-[#E4572E] font-medium border border-[#FEE4D6]">
                         {parcel.status || 'arrived'}
                       </span>
@@ -264,6 +288,12 @@ export function CollectSearchPlaceholder() {
           </ul>
         )}
       </div>
+
+      <ParcelDetailModal
+        isOpen={!!selectedDetailParcel}
+        onClose={() => setSelectedDetailParcel(null)}
+        parcel={selectedDetailParcel}
+      />
     </div>
   );
 }

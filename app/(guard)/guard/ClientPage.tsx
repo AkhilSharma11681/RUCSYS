@@ -10,6 +10,7 @@ import { PrimaryButton } from '@/components/Buttons';
 import { Clock, Archive, CheckCircle2, AlertTriangle, Search, X, Loader2 } from 'lucide-react';
 import { searchPendingAction } from './actions';
 import { CollectionType } from '@/lib/types';
+import { ParcelDetailModal } from '@/components/ParcelDetailModal';
 
 interface PendingRequest {
   id: string;
@@ -52,6 +53,7 @@ export function GuardDashboardClient({
   const [pendingList, setPendingList] = useState<PendingRequest[]>(initialPending);
   const [isPendingSearch, startTransition] = useTransition();
   const [highlightPending, setHighlightPending] = useState(false);
+  const [selectedModalParcel, setSelectedModalParcel] = useState<any | null>(null);
 
   // Debounce search input (~400ms)
   useEffect(() => {
@@ -197,7 +199,19 @@ export function GuardDashboardClient({
             </div>
           ) : (
             pendingList.map((req) => (
-              <div key={req.id} className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm">
+              <div
+                key={req.id}
+                className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-[#E4572E]/50 transition-all active:scale-[0.99]"
+                onClick={() => setSelectedModalParcel({
+                  id: req.id,
+                  studentName: req.studentName,
+                  platform: req.platform,
+                  orderLast4: req.orderLast4,
+                  expectedDate: req.expectedDate,
+                  status: 'pending',
+                  collectionType: req.collectionType
+                })}
+              >
                 <div className="flex items-start gap-3.5">
                   <PlatformIcon platform={req.platform} size="md" className="rounded-xl bg-[#FBF6F1] p-1 border border-[#E8E0D8]/60 mt-0.5" />
                   <div className="flex-1 min-w-0">
@@ -216,7 +230,7 @@ export function GuardDashboardClient({
                     </div>
 
                     <div className="pt-1">
-                      <Link href={`/guard/arrivals/${req.id}`} className="block">
+                      <Link href={`/guard/arrivals/${req.id}`} className="block" onClick={(e) => e.stopPropagation()}>
                         <PrimaryButton
                           fullWidth
                           className="!h-10 text-[14px] !rounded-xl"
@@ -236,7 +250,7 @@ export function GuardDashboardClient({
       <div className="pt-2">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-[17px] font-bold text-[#1a1a1a] tracking-tight">Ready for Pickup</h2>
-          <Link href="/guard/arrived" className="text-[13px] font-bold text-[#E4572E] hover:underline">
+          <Link href="/guard/collect" className="text-[13px] font-bold text-[#E4572E] hover:underline">
             View All →
           </Link>
         </div>
@@ -247,12 +261,25 @@ export function GuardDashboardClient({
             </div>
           ) : (
             readySummary.map((item) => (
-              <div key={item.id} className="bg-white border border-[#E8E0D8]/80 rounded-xl p-3.5 flex items-center gap-3 shadow-xs">
+              <div
+                key={item.id}
+                onClick={() =>
+                  setSelectedModalParcel({
+                    id: item.id,
+                    studentName: item.studentName,
+                    platform: item.platform,
+                    orderLast4: item.orderLast4,
+                    status: 'arrived',
+                  })
+                }
+                className="bg-white border border-[#E8E0D8]/80 rounded-xl p-3.5 flex items-center gap-3 shadow-xs cursor-pointer hover:border-[#E4572E]/50 hover:bg-[#FAF8F5] transition-all active:scale-[0.99]"
+              >
                 <PlatformIcon platform={item.platform} size="sm" className="rounded-lg bg-[#FBF6F1] p-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[#1a1a1a] text-[14px] truncate">{item.studentName}</p>
                   <p className="text-[12px] text-[#6B6B6B] truncate">{item.platform} &middot; Order ...{item.orderLast4}</p>
                 </div>
+                <span className="text-xs font-semibold text-[#E4572E]">View details</span>
               </div>
             ))
           )}
@@ -280,17 +307,36 @@ export function GuardDashboardClient({
             </div>
           ) : (
             overdueSummary.map((item) => (
-              <div key={item.id} className="bg-[#FDECEA]/30 border border-[#FADBD8] rounded-xl p-3.5 flex items-center gap-3">
+              <div
+                key={item.id}
+                onClick={() =>
+                  setSelectedModalParcel({
+                    id: item.id,
+                    studentName: item.studentName,
+                    platform: item.platform,
+                    orderLast4: item.orderLast4,
+                    status: 'overdue',
+                  })
+                }
+                className="bg-[#FDECEA]/30 border border-[#FADBD8] rounded-xl p-3.5 flex items-center gap-3 cursor-pointer hover:bg-[#FDECEA]/60 transition-all active:scale-[0.99]"
+              >
                 <PlatformIcon platform={item.platform} size="sm" className="rounded-lg bg-white p-0.5" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-[#C0392B] text-[14px] truncate">{item.studentName}</p>
                   <p className="text-[12px] text-[#C0392B]/80 truncate">{item.platform} &middot; Order ...{item.orderLast4}</p>
                 </div>
+                <span className="text-xs font-semibold text-[#C0392B]">View details</span>
               </div>
             ))
           )}
         </div>
       </div>
+
+      <ParcelDetailModal
+        isOpen={!!selectedModalParcel}
+        onClose={() => setSelectedModalParcel(null)}
+        parcel={selectedModalParcel}
+      />
     </div>
   );
 }

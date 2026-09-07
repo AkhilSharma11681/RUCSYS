@@ -4,8 +4,9 @@ import React, { useState, useTransition } from 'react';
 import { logCallAction } from './actions';
 import { PlatformIcon } from '@/components/PlatformIcon';
 import { DetailCard } from '@/components/DetailCard';
-import { AlertCircle, Phone, PhoneCall, CheckCircle2, Search, X, Loader2, MapPin } from 'lucide-react';
+import { AlertCircle, Phone, PhoneCall, CheckCircle2, Search, X, Loader2, MapPin, Eye } from 'lucide-react';
 import { EscalationStage } from '@/lib/types';
+import { ParcelDetailModal } from '@/components/ParcelDetailModal';
 
 export interface OverdueParcelItem {
   id: string;
@@ -33,6 +34,7 @@ export function OverdueParcelsClient({
   const [isPending, startTransition] = useTransition();
   const [loadingParcelId, setLoadingParcelId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedDetailParcel, setSelectedDetailParcel] = useState<any | null>(null);
 
   const filteredParcels = parcelsList.filter((p) => {
     if (!searchQuery.trim()) return true;
@@ -137,7 +139,18 @@ export function OverdueParcelsClient({
             return (
               <div
                 key={parcel.id}
-                className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm space-y-3"
+                onClick={() => setSelectedDetailParcel({
+                  id: parcel.id,
+                  parcelNumber: parcel.parcelNumber,
+                  studentName: parcel.studentName,
+                  platform: parcel.platform,
+                  orderLast4: parcel.orderLast4,
+                  storageLocation: parcel.storageLocation,
+                  arrivedAt: parcel.arrivedAt,
+                  status: 'overdue',
+                  notes: `${parcel.daysOverdue} days overdue. Escalation stage: ${parcel.stages.join(', ') || 'Pending'}`
+                })}
+                className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm space-y-3 cursor-pointer hover:border-[#E4572E]/50 transition-all active:scale-[0.99]"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
@@ -185,7 +198,10 @@ export function OverdueParcelsClient({
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleLogCall(parcel.id, parcel.studentName)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLogCall(parcel.id, parcel.studentName);
+                        }}
                         disabled={isCallingThis}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-bold text-[#C0392B] bg-[#FDECEA] hover:bg-[#FADBD8] border border-[#FADBD8] transition-colors disabled:opacity-50"
                       >
@@ -204,6 +220,12 @@ export function OverdueParcelsClient({
           })
         )}
       </div>
+
+      <ParcelDetailModal
+        isOpen={!!selectedDetailParcel}
+        onClose={() => setSelectedDetailParcel(null)}
+        parcel={selectedDetailParcel}
+      />
     </div>
   );
 }

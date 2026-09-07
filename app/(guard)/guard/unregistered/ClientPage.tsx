@@ -6,6 +6,7 @@ import { PlatformIcon } from '@/components/PlatformIcon';
 import { PlusCircle, Inbox, Search, MapPin, X, Link as LinkIcon, AlertTriangle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { searchPendingRequestsAction, linkUnregisteredParcelAction } from './actions';
+import { ParcelDetailModal } from '@/components/ParcelDetailModal';
 
 interface UnregisteredParcelItem {
   id: string;
@@ -25,6 +26,7 @@ export function UnregisteredParcelsClientPage({ initialParcels }: UnregisteredPa
 
   // Linking modal state
   const [linkingParcel, setLinkingParcel] = useState<UnregisteredParcelItem | null>(null);
+  const [selectedModalParcel, setSelectedModalParcel] = useState<any | null>(null);
   const [studentSearch, setStudentSearch] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -147,7 +149,19 @@ export function UnregisteredParcelsClientPage({ initialParcels }: UnregisteredPa
           </DetailCard>
         ) : (
           filteredParcels.map(parcel => (
-            <div key={parcel.id} className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm space-y-3">
+            <div
+              key={parcel.id}
+              onClick={() => setSelectedModalParcel({
+                id: parcel.id,
+                parcelNumber: parcel.parcelNumber,
+                platform: parcel.platform,
+                notes: parcel.notes,
+                arrivedAt: parcel.arrivedAt,
+                storageLocation: parcel.storageLocation,
+                isUnregistered: true
+              })}
+              className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-4 shadow-sm space-y-3 cursor-pointer hover:border-[#E4572E]/50 transition-all active:scale-[0.99]"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
                   <PlatformIcon
@@ -171,7 +185,10 @@ export function UnregisteredParcelsClientPage({ initialParcels }: UnregisteredPa
                   </p>
                   <button
                     type="button"
-                    onClick={() => setLinkingParcel(parcel)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLinkingParcel(parcel);
+                    }}
                     className="mt-2 text-xs font-bold text-[#E4572E] bg-[#FFF5F0] hover:bg-[#FFE8DC] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors inline-flex"
                   >
                     <LinkIcon className="w-3.5 h-3.5" />
@@ -196,7 +213,7 @@ export function UnregisteredParcelsClientPage({ initialParcels }: UnregisteredPa
       {/* Wrapping Link Modal */}
       {linkingParcel && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs">
-          <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200">
+          <div className="bg-white w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl shadow-xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="p-4 border-b border-[#E8E0D8] bg-[#FBF6F1] flex items-center justify-between shrink-0">
               <div>
                 <h3 className="text-base font-bold text-[#1a1a1a]">Link Parcel #{linkingParcel.parcelNumber}</h3>
@@ -277,8 +294,15 @@ export function UnregisteredParcelsClientPage({ initialParcels }: UnregisteredPa
               </div>
             </div>
           </div>
+          <div className="absolute inset-0 z-[-1]" onClick={() => { setLinkingParcel(null); setStudentSearch(''); setSearchResults([]); setError(null); }} />
         </div>
       )}
+
+      <ParcelDetailModal
+        isOpen={!!selectedModalParcel}
+        onClose={() => setSelectedModalParcel(null)}
+        parcel={selectedModalParcel}
+      />
     </div>
   );
 }

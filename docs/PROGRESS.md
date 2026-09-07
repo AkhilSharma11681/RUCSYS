@@ -198,5 +198,23 @@
   - Verified `vercel.json` cron config (`30 0 * * *`) targeting `/api/cron/escalate`.
   - Verified production build (`npm run build`) with Turbopack and SSR dynamic route rendering.
   - Committed and pushed all commits to remote branch `origin/feature/neon-migration`.
-- **Left off at:** Application is 100% complete, fully tested, and ready for deployment.
+### Session 11 — Auth Redirection & Nav Bar Route Fixes (2026-09-07)
+- Asked to: Fix the issue where clicking the "Register" button on `/login` and after logging in and clicking the "Register" nav tab redirected continuously back to `/login` with no errors.
+- Did:
+  - Repaired Bottom Navigation Bar tab href links to match App Router routes correctly (e.g. `/parcels/register` -> `/parcels/new`).
+  - Implemented an Edge/Node split in authentication logic (`auth.config.ts` vs `auth.ts`) so NextAuth middleware works correctly on Vercel Edge Runtime without failing on `.node` DB/bcrypt dependencies.
+  - Implemented Learner Sign-Up functionality (`app/login/actions.ts` / `StudentRepository.create`) enforcing college email validation directly from the `/login` screen.
+  - Implemented direct window location updates on sign-in (rather than Next.js soft transitions) to guarantee cookies exist prior to hitting middleware.
+  - Generated and deployed a new test production build on Vercel.
+- Left off at: Auth fixes are deployed to production (`https://rucsys-ywyd.vercel.app`), everything passing smoothly. All 18 endpoints are functional.
 
+
+### Session 12 — Parcel Details Inspection & Guard Dashboard Routing Fix (2026-09-07)
+- Asked to: Fix 404 error when clicking "View All →" under "Ready for Pickup" on the Guard Dashboard (`/guard`), and enable full parcel details view upon clicking any parcel card.
+- Did:
+  - Fixed route redirection on the Guard Dashboard from deprecated `/guard/arrived` to `/guard/collect`.
+  - Created reusable modal component `components/ParcelDetailModal.tsx` for displaying complete parcel metadata.
+  - Integrated `ParcelDetailModal` into `app/(guard)/guard/ClientPage.tsx`, `app/(guard)/guard/unregistered/ClientPage.tsx`, `app/(guard)/guard/collect/ClientPage.tsx`, and `app/(guard)/guard/overdue/ClientPage.tsx`.
+  - Made parcel cards and summary items interactive with smooth modal trigger transitions.
+  - Verified full TypeScript compilation and Next.js build (`npm run build`).
+- Left off at: Ready to commit and push changes.
