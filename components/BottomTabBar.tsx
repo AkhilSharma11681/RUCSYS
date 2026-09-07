@@ -3,10 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package, PlusCircle, History, LayoutGrid, PackagePlus, Inbox, AlertCircle } from 'lucide-react';
+import {
+  Package,
+  PlusCircle,
+  History,
+  LayoutGrid,
+  PackagePlus,
+  Inbox,
+  AlertCircle,
+  LayoutDashboard,
+  Settings,
+  ShieldCheck,
+} from 'lucide-react';
 
 interface BottomTabBarProps {
-  app: 'learner' | 'guard';
+  app: 'learner' | 'guard' | 'admin';
 }
 
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ app }) => {
@@ -25,7 +36,18 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ app }) => {
     { label: 'Overdue', href: '/guard/overdue', icon: AlertCircle },
   ];
 
-  const tabs = app === 'learner' ? learnerTabs : guardTabs;
+  const adminTabs = [
+    { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { label: 'Settings', href: '/admin/settings', icon: Settings },
+    { label: 'Guards', href: '/admin/guards', icon: ShieldCheck },
+  ];
+
+  const tabs =
+    app === 'learner'
+      ? learnerTabs
+      : app === 'guard'
+      ? guardTabs
+      : adminTabs;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E0D8] px-2 py-1.5 flex justify-around items-center max-w-md mx-auto">
