@@ -43,6 +43,16 @@ export class ParcelRepository {
     return result?.storageLocation || null;
   }
 
+  async findByRequestId(requestId: string) {
+    const [result] = await db
+      .select()
+      .from(parcels)
+      .where(eq(parcels.requestId, requestId))
+      .limit(1);
+
+    return result || null;
+  }
+
   async createParcel(data: {
     requestId: string;
     guardId: string;
