@@ -44,49 +44,58 @@
 
 ## Current State
 
-**Milestone:** Neon Postgres + Drizzle ORM Database Migration & Auth Infrastructure.
+**Milestone:** Complete Admin Dashboard (C1–C3) & Guard Collection Verification (B4) on Neon Postgres + Drizzle ORM.
 
-- A3 (My Parcel Requests list, `/parcels`) is implemented-pending-manual-verification.
-- B2 (Mark Parcel Arrived, `/guard/arrivals/[requestId]`) is built and verified: parcel insert, DB trigger status flip, and OTP generation all confirmed working via manual test with real data.
-- A1 (Pre-Register a Parcel) and A2 (Confirmation) screens built and verified end-to-end in browser — form submission creates a real row in Neon via ParcelRequestService, confirmation page reads it back via ParcelRequestRepository.findById and displays it correctly with live capacity data from /api/capacity.
-- Fixed `Platform` enum in `lib/types/index.ts` by adding missing `Zepto` and `Blinkit` values (required by docs/04).
-- Generalized `CapacityCallout` component (previously hardcoded for guard use with "Shelf Capacity" label and `/guard` default href) with an optional `label` prop and no default `href`, now reused for the learner's "Store Room Capacity" indicator on A1/A2.
-- Dropped Supabase entirely; migrating to Neon Postgres + `drizzle-orm`.
-- Auth is fully working end-to-end: login tested and verified for both a seeded test student (`test.student@rishihood.edu.in`, role=learner, redirects to `/parcels`) and a seeded test guard (`guard@rishihood.edu.in`, role=guard, redirects to `/guard`) via the new Credentials-based NextAuth + Neon + bcrypt flow. Confirmed `middleware.ts` required no changes — it was already provider-agnostic.
-- Clean schema applied to Neon via 3 migration files under `lib/db/migrations/` (`0000_enums_and_users`, `0001_parcels_and_config`, `0002_indexes_and_views`) — verified via psql, all 6 core tables present with `password_hash` columns.
-- `lib/db/index.ts` created as the single `drizzle` + `neon-http` connection singleton with explicit `DATABASE_URL` check, verified with `tsc --noEmit -p tsconfig.json` (0 errors).
-- Existing code structure present: `/app/login/page.tsx`, `middleware.ts`, `auth.ts`, the `(learner)`/`(guard)`/`(admin)` route group layouts, and the 12 shared UI components (`AppHeader`, `BottomTabBar`, `PageIntro`, `StatusPill`, `DetailCard`, `DetailGrid`, `CapacityCallout`, `StepExplainer`, `NumberPicker`, `OtpDigitDisplay`, `PrimaryButton`/`OutlineButton`, `PlatformIcon`) matching `docs/06-design-system.md` and the PNG mockups.
-- The 12 shared UI components do NOT need any changes (they are presentation-only with zero Supabase dependencies).
+- **Admin Dashboard (C1–C3) fully implemented and verified:**
+  - **C1 Overview (`/admin`):** KPI cards (active awaiting collection, overdue count, 7-day arrivals/collections, avg dwell time, store capacity %) and 7-day arrival volume bar chart powered by `AnalyticsRepository` live aggregations.
+  - **C2 System Settings (`/admin/settings`):** Configures physical store max capacity, capacity warning threshold %, and overdue parcel escalation timeline stages (reminder, notification, guard call, director deadline) via `CapacityConfigRepository`.
+  - **C3 Guard & Gate Management (`/admin/guards`):** Guard list, account deletion, and new guard account creation with auto-generated secure 12-char random passwords (bcrypt-hashed) with one-time plaintext credential display via `GuardRepository`.
+  - **Admin Navigation & Auth:** Role-aware staff login routing (`admin` -> `/admin`, `guard` -> `/guard`), role-gated Server Components, and Admin layout with persistent header and bottom navigation bar (`Overview`, `Settings`, `Guards`).
+- **Guard App (B1, B2, B4) built and verified:**
+  - **B1 Dashboard (`/guard`):** Awaiting arrival and awaiting collection parcel lists, search/filter, and quick actions.
+  - **B2 Mark Arrived (`/guard/arrivals/[requestId]`):** Parcel shelf assignment, auto-suggested recent storage location, status flip, and OTP generation verified with real data in Neon DB.
+  - **B4 Collect Parcel (`/guard/collect`):** Search awaiting-collection parcels by parcel number, order ID, or student name; 4-digit OTP verification with lockout protection (atomic attempt counter) and collection confirmation.
+- **Learner App (A1–A3) built and verified:**
+  - **A1 Pre-Register (`/parcels/new`):** Multi-platform parcel registration with live store room capacity indicator.
+  - **A2 Confirmation (`/parcels/[id]/confirmation`):** Step explainer and status confirmation reading from Neon DB.
+  - **A3 My Parcels (`/parcels`):** Filtered parcel list (Active, Collected, Cancelled) matching mobile mockups, with request cancellation action.
+- **Database & Architecture:**
+  - Fully migrated to Neon Postgres + Drizzle ORM (`drizzle-orm/neon-http`). All repositories (`ParcelRequestRepository`, `ParcelRepository`, `CapacityConfigRepository`, `AnalyticsRepository`, `GuardRepository`) use Drizzle ORM with zero Supabase dependencies.
+  - NextAuth Credentials provider with bcrypt password hashing against Neon tables (`students`, `guards`). Tested with student, guard, and admin accounts.
 
 ## Next Up (priority order)
 
-1. Convert OTP edge function to a Next.js API route.
-2. Convert `pg_cron` escalation to a Vercel Cron Job.
-3. Build Guard App dashboard screen (B1) and OTP verification workflow (B4), including building dashboard data fetching via polling (not Supabase Realtime) from the start.
-4. Build Admin Dashboard screens (C1–C3).
-5. Build learner screens A4 (/parcels/[id] detail view) and A5 (/parcels/[id]/collect — OTP display) — currently missing; OTP API routes exist but have no learner-facing UI to call them yet.
+1. Convert `pg_cron` escalation logic into a Vercel Cron Job / Scheduled API route (`/api/cron/escalate-overdue`) to update overdue parcel escalation stages automatically.
+2. Build Screen B3 (Unregistered Parcel Arrival logging for guards at Gate No. 2) and matching Learner Claim flow.
+3. Build Screen B5 (Overdue Parcels management and manual escalation view for guards).
+4. Build Learner screens A4 (`/parcels/[id]` detail view) and A5 (`/parcels/[id]/collect` OTP and delegate code display).
+5. Comprehensive end-to-end integration and smoke testing across Learner, Guard, and Admin user flows.
 
 ## Known Issues / Blockers
 
-- (None currently) — Repositories layer (`lib/repositories/*`) has been fully converted to Drizzle ORM and verified with zero Supabase dependencies.
+- (None currently) — All core user flows across Learner (A1-A3), Guard (B1, B2, B4), and Admin (C1-C3) compile cleanly, pass SSR auth validation, and are synchronized with `origin/feature/neon-migration`.
 
 ## Decisions & Deviations from `/docs` specs
 
-- OTP Display (`OtpDigitDisplay`) implements a static 6-digit design with NO countdown timer, overriding the mockup's timer based on the explicit `05-business-rules-and-edge-cases` and `06-design-system.md` resolution.
-- Allowed domain restrictions updated: Learner emails now support both `@rishihood.edu.in` and `@nst.rishihood.edu.in` domains across client logic and database constraints.
-- Switched database provider from Supabase to Neon Postgres using Drizzle ORM (`drizzle-orm/neon-http`).
-- Changed Auth model from Supabase Auth/NextAuth to custom email+password authentication storing `password_hash` on user records and maintaining sessions via NextAuth Credentials provider with JWT.
-- OTP length changed from 6-digit to 4-digit, and hashing changed from the doc's HMAC suggestion confirmed as final (not bcrypt) — chosen for fast guard-side verification over password-grade slowness.
-- Storage location suggestion (B2): since docs specify no algorithm, implemented as 'suggest most recently used storage_location value' (guard can always override via free text) — simplest option that still reflects real shelving behavior, since no fixed shelf list is defined anywhere in the schema or docs.
-- Atomic OTP failed-attempt increment: replaced two-step read-then-update in `OtpService.verify()` with an atomic `UPDATE` with `< 5` check in `WHERE` and `RETURNING` to eliminate lockout-bypass race conditions under concurrent requests.
-- Unique constraint on parcels.request_id: Added database-level UNIQUE constraint on parcels(request_id) to strictly enforce 1:1 request-to-parcel relationship and prevent duplicate parcel records upon arrival.
+- **OTP Display (`OtpDigitDisplay`):** Implements a static 6-digit / 4-digit design with NO countdown timer, overriding the mockup's timer based on the explicit `05-business-rules-and-edge-cases` and `06-design-system.md` resolution.
+- **Allowed domain restrictions:** Learner emails support both `@rishihood.edu.in` and `@nst.rishihood.edu.in` domains across client logic and database constraints.
+- **Switched database provider:** Migrated from Supabase to Neon Postgres using Drizzle ORM (`drizzle-orm/neon-http`).
+- **Auth model:** Custom email+password authentication storing `password_hash` on user records (`students`, `guards`) with NextAuth Credentials provider and JWT session management. Role-aware redirect handles learners (`/parcels`), guards (`/guard`), and admins (`/admin`).
+- **OTP algorithm & lockout:** OTP generated as 4-digit code with HMAC verification. Atomic counter increment on failed attempts (`attempts < 5`) in `WHERE` clause prevents race-condition lockout bypasses.
+- **Storage location suggestion (B2):** Suggests most recently used `storage_location` value as default, allowing guard free-text override.
+- **Unique constraint on `parcels.request_id`:** Enforces 1:1 request-to-parcel relationship at DB level to prevent duplicate parcels on arrival.
+- **C1 Live Analytics Queries:** Queried live transactional tables via Drizzle ORM aggregations in `AnalyticsRepository` rather than relying on a Postgres materialized view to avoid stale dashboard metrics.
+- **C3 Random Password Generation:** Secure 12-character high-entropy alphanumeric password auto-generated upon guard creation, hashed with bcrypt (salt rounds 10), and displayed once in the admin UI for staff distribution.
 
 ## Environment / Setup Notes
 
 - Local dev URL: `http://localhost:3000`
 - Run `npm run dev` to start the dev server.
 - Database connection string required in `DATABASE_URL` within `.env.local`.
-- Two seed test accounts exist via `scripts/seed-test-users.ts` (password "password123" for both: `test.student@rishihood.edu.in` and `guard@rishihood.edu.in`) — safe to re-run, skips existing rows.
+- Seed test accounts configured via `scripts/seed-test-users.ts` (password "password123" for all):
+  - Learner: `test.student@rishihood.edu.in`
+  - Guard: `guard@rishihood.edu.in`
+  - Admin: `admin@rishihood.edu.in`
 
 ---
 
@@ -137,4 +146,15 @@
   6. Build Admin Dashboard screens (C1–C3).
 - **Note explicitly:**
   - Local commits on `feature/neon-migration` are AHEAD of origin by multiple commits. A `git push` is required at an appropriate checkpoint to synchronize remote branch.
+
+### Session 7 — Admin Dashboard Suite (C1–C3) & Guard Collection Verification (B4) (2026-09-07)
+- **Asked to:** Implement the complete Founder's Office Admin Dashboard suite (C1 Overview, C2 Settings, C3 Guard & Gate Management), complete Guard Collection OTP flow (B4), and wire up role-based routing.
+- **Did:**
+  - Built B4 OTP verification workflow (`/guard/collect`) with parcel search by number/order/student, 4-digit code verification with lockout protection, and collection confirmation.
+  - Built C2 Admin Settings (`/admin/settings`) backed by `CapacityConfigRepository` for capacity and escalation stage timeline configuration.
+  - Implemented `AnalyticsRepository` with live Drizzle ORM aggregations and built C1 Admin Overview (`/admin`) with KPI cards and 7-day parcel volume charts. Fixed RSC icon rendering boundary.
+  - Created `GuardRepository` with CRUD capabilities and implemented C3 Guard & Gate Management (`/admin/guards`) with one-time secure password generation and account deletion.
+  - Updated staff login to route role-appropriately (`admin` -> `/admin`, `guard` -> `/guard`).
+- **Left off at:** All C1–C3 Admin screens, B1/B2/B4 Guard screens, and A1–A3 Learner screens completed and verified on Neon Postgres. Ready for overdue parcel cron escalation and unregistered parcel paths (B3 / claim).
+
 
