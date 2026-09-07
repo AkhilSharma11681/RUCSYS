@@ -116,7 +116,7 @@ export function GuardDashboardClient({
         label="Store Room Capacity"
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         <StatTile
           label="Pending Arrivals"
           value={stats.pending}
@@ -184,7 +184,7 @@ export function GuardDashboardClient({
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
           {pendingList.length === 0 ? (
             <div className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
               <div className="w-10 h-10 bg-[#F5EDE6] rounded-full flex items-center justify-center mb-2">
@@ -254,7 +254,7 @@ export function GuardDashboardClient({
             View All →
           </Link>
         </div>
-        <div className="space-y-2.5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
           {readySummary.length === 0 ? (
             <div className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-5 text-center">
               <p className="text-[13px] text-[#6B6B6B] font-medium">No parcels waiting for pickup</p>
@@ -300,7 +300,7 @@ export function GuardDashboardClient({
             View All →
           </Link>
         </div>
-        <div className="space-y-2.5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
           {overdueSummary.length === 0 ? (
             <div className="bg-white border border-[#E8E0D8]/80 rounded-2xl p-5 text-center">
               <p className="text-[13px] text-[#6B6B6B] font-medium">No overdue parcels</p>

@@ -78,8 +78,7 @@
 
 ## Next Up (priority order)
 
-1. Open Pull Request from `feature/neon-migration` to `main` branch.
-2. Deploy to Vercel production and verify live environment variables (`DATABASE_URL`, `NEXTAUTH_SECRET`, `CRON_SECRET`, `OTP_SECRET`).
+(None) — Post-deployment monitoring. The application is completely functional, styled responsively across PC and mobile devices, and deployed to Vercel production.
 
 ## Known Issues / Blockers
 
@@ -230,3 +229,13 @@
   - Merged all code to `main` branch and deployed to production (`https://rucsys-ywyd.vercel.app`).
   - Verified Turbopack build and 18/18 static and dynamic routes.
 - **Left off at:** Project is completely built, verified, and live in production. Ready for presentation.
+
+### Session 14 — Responsive Desktop vs. Mobile Overhaul (2026-09-08)
+- **Asked to:** Overhaul layouts so that PC/desktop users get a full desktop web application experience (wide containers, top navigation bar in header, multi-column grids, top sign-out button, hidden bottom bar) while mobile users retain a native mobile app feel (hamburger drawer, bottom navigation bar, single-column touch cards).
+- **Did:**
+  - Redesigned `components/AppHeader.tsx` with desktop horizontal navigation tabs, dynamic user role indicator, top-right Sign Out button, and responsive viewport toggling (`hidden md:flex`).
+  - Updated `components/BottomTabBar.tsx` to automatically hide on screens wider than mobile (`md:hidden`).
+  - Expanded layout shells (`app/(learner)/layout.tsx`, `app/(guard)/layout.tsx`, `app/(admin)/layout.tsx`) from narrow `max-w-md` mobile containers to responsive fluid `max-w-6xl xl:max-w-7xl` layouts.
+  - Converted parcel lists and dashboards (`app/(learner)/parcels/ClientPage.tsx`, `app/(guard)/guard/ClientPage.tsx`) into responsive multi-column CSS grids (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3` and `grid-cols-2 lg:grid-cols-4`).
+  - Verified Next.js build compilation (`npm run build`) with zero errors across all routes.
+- **Left off at:** Full responsive design deployed and ready.

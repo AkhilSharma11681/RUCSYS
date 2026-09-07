@@ -8,10 +8,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#FBF6F1] flex flex-col justify-between max-w-4xl mx-auto relative border-x border-[#E8E0D8]/40 shadow-sm">
+    <div className="min-h-screen bg-[#FBF6F1] flex flex-col justify-between">
       <div>
-        <AppHeader unreadCount={0} />
-        <main className="p-4 sm:p-6 pb-24">{children}</main>
+        <AppHeader app="admin" unreadCount={0} />
+        <main className="max-w-6xl xl:max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-12">
+          {children}
+        </main>
       </div>
       <BottomTabBar app="admin" />
     </div>

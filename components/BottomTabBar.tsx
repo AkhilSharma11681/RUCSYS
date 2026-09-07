@@ -51,7 +51,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ app }) => {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E0D8] px-2 py-1.5 flex justify-around items-center ${
+      className={`fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E8E0D8] px-2 py-1.5 flex md:hidden justify-around items-center ${
         app === 'admin' ? 'max-w-4xl' : 'max-w-md'
       } mx-auto shadow-sm`}
     >

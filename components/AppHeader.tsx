@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
   Menu,
@@ -10,31 +11,76 @@ import {
   X,
   LogOut,
   Package,
-  Shield,
-  HelpCircle,
+  PlusCircle,
+  LayoutGrid,
+  PackagePlus,
+  Inbox,
+  AlertCircle,
+  LayoutDashboard,
+  Settings,
+  ShieldCheck,
+  Search,
   Clock,
   Phone,
   CheckCircle2,
   AlertTriangle,
   Info,
   ChevronRight,
-  ExternalLink,
+  Shield,
 } from 'lucide-react';
 
 interface AppHeaderProps {
+  app?: 'learner' | 'guard' | 'admin';
   unreadCount?: number;
   onMenuClick?: () => void;
   onNotificationClick?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
+  app,
   unreadCount: initialUnreadCount = 3,
 }) => {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
 
-  // Dynamic sample notifications
+  // Auto-detect app role if not explicitly provided
+  const detectedApp =
+    app ||
+    (pathname.startsWith('/admin')
+      ? 'admin'
+      : pathname.startsWith('/guard')
+      ? 'guard'
+      : 'learner');
+
+  const learnerTabs = [
+    { label: 'Parcels', href: '/parcels', icon: Package },
+    { label: 'Register New', href: '/parcels/new', icon: PlusCircle },
+    { label: 'Unmatched', href: '/parcels/unmatched', icon: Search },
+  ];
+
+  const guardTabs = [
+    { label: 'Dashboard', href: '/guard', icon: LayoutGrid },
+    { label: 'Collect Handover', href: '/guard/collect', icon: PackagePlus },
+    { label: 'Unregistered', href: '/guard/unregistered', icon: Inbox },
+    { label: 'Overdue Parcels', href: '/guard/overdue', icon: AlertCircle },
+  ];
+
+  const adminTabs = [
+    { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+    { label: 'Settings', href: '/admin/settings', icon: Settings },
+    { label: 'Gate Guards', href: '/admin/guards', icon: ShieldCheck },
+  ];
+
+  const desktopTabs =
+    detectedApp === 'learner'
+      ? learnerTabs
+      : detectedApp === 'guard'
+      ? guardTabs
+      : adminTabs;
+
+  // Notifications
   const [notifications, setNotifications] = useState([
     {
       id: '1',
@@ -71,48 +117,117 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     await signOut({ callbackUrl: '/login' });
   };
 
+  const roleLabel =
+    detectedApp === 'admin'
+      ? "Founder's Office (Admin)"
+      : detectedApp === 'guard'
+      ? 'Gate No. 2 Staff'
+      : 'Learner Portal';
+
   return (
     <>
-      <header className="sticky top-0 z-40 w-full h-16 bg-[#FBF6F1] border-b border-[#E8E0D8]/60 px-4 flex items-center justify-between">
-        {/* Left Hamburger */}
-        <button
-          type="button"
-          onClick={() => setIsMenuOpen(true)}
-          className="p-2 text-[#1a1a1a] hover:bg-[#F5EDE6] rounded-xl transition-colors active:scale-95"
-          aria-label="Open Navigation Menu"
-        >
-          <Menu className="w-6 h-6 stroke-[1.75]" />
-        </button>
+      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-[#E8E0D8]/80 px-4 sm:px-6 lg:px-8 transition-all shadow-xs">
+        <div className="max-w-7xl mx-auto h-16 flex items-center justify-between">
+          {/* Left: Mobile Hamburger & Desktop Brand */}
+          <div className="flex items-center gap-3 md:gap-6">
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(true)}
+              className="md:hidden p-2 text-[#1a1a1a] hover:bg-[#F5EDE6] rounded-xl transition-colors active:scale-95"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-6 h-6 stroke-[1.75]" />
+            </button>
 
-        {/* Center Logo & Wordmark */}
-        <Link href="/" className="flex items-center justify-center">
-          <Image
-            src="/ru-logo.png"
-            alt="Rishihood University Logo"
-            width={108}
-            height={40}
-            className="h-9 w-auto object-contain"
-            priority
-          />
-        </Link>
+            {/* Logo & Branding */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <Image
+                src="/ru-logo.png"
+                alt="Rishihood University Logo"
+                width={112}
+                height={42}
+                className="h-9 w-auto object-contain transition-transform group-hover:scale-105"
+                priority
+              />
+              <div className="hidden sm:flex flex-col border-l border-[#E8E0D8] pl-3">
+                <span className="text-[13px] font-bold text-[#1a1a1a] leading-tight tracking-tight uppercase">
+                  RUCSYS
+                </span>
+                <span className="text-[10px] font-semibold text-[#E4572E] tracking-wider uppercase">
+                  Gate No. 2
+                </span>
+              </div>
+            </Link>
+          </div>
 
-        {/* Right Bell with Badge */}
-        <button
-          type="button"
-          onClick={() => setIsNotifOpen(true)}
-          className="relative p-2 text-[#1a1a1a] hover:bg-[#F5EDE6] rounded-xl transition-colors active:scale-95"
-          aria-label="Notifications"
-        >
-          <Bell className="w-6 h-6 stroke-[1.75]" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#E4572E] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </button>
+          {/* Center: Desktop Navigation Bar */}
+          <nav className="hidden md:flex items-center gap-1.5 bg-[#FAF8F5] p-1 rounded-2xl border border-[#E8E0D8]/80">
+            {desktopTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive =
+                tab.href === '/admin' || tab.href === '/guard' || tab.href === '/parcels'
+                  ? pathname === tab.href
+                  : pathname.startsWith(tab.href);
+
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                    isActive
+                      ? 'bg-white text-[#E4572E] shadow-xs scale-100 border border-[#E8E0D8]/50'
+                      : 'text-[#6B6B6B] hover:text-[#1a1a1a] hover:bg-white/60'
+                  }`}
+                >
+                  <Icon
+                    className={`w-4 h-4 ${
+                      isActive ? 'text-[#E4572E] stroke-[2.2]' : 'stroke-[1.75]'
+                    }`}
+                  />
+                  <span>{tab.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right: Notifications, Role Pill & Sign Out (Desktop) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Role indicator pill on desktop */}
+            <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 bg-[#FBF6F1] border border-[#E8E0D8] rounded-xl text-[11px] font-bold text-[#6B6B6B]">
+              <div className="w-2 h-2 rounded-full bg-[#E4572E] animate-pulse" />
+              <span>{roleLabel}</span>
+            </div>
+
+            {/* Notification Bell */}
+            <button
+              type="button"
+              onClick={() => setIsNotifOpen(true)}
+              className="relative p-2 text-[#1a1a1a] hover:bg-[#F5EDE6] rounded-xl transition-colors active:scale-95"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5 stroke-[1.75]" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#E4572E] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-in zoom-in">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Desktop Direct Sign Out Button */}
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#C0392B] bg-[#FFF5F5] hover:bg-[#FDECEA] border border-[#FADBD8] rounded-xl transition-colors shadow-2xs"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
       </header>
 
-      {/* Slide-over Left Navigation & Account Menu */}
+      {/* Slide-over Left Navigation & Account Menu (Mobile + Info) */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 flex">
           {/* Backdrop */}
@@ -132,7 +247,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   </div>
                   <div>
                     <h2 className="font-bold text-[#1a1a1a] text-sm leading-tight">RUCSYS Gate No. 2</h2>
-                    <p className="text-[11px] text-[#6B6B6B] mt-0.5">Campus Parcel Management</p>
+                    <p className="text-[11px] text-[#6B6B6B] mt-0.5">{roleLabel}</p>
                   </div>
                 </div>
                 <button
@@ -146,6 +261,37 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
               {/* Navigation & Information Links */}
               <div className="p-4 space-y-4">
+                {/* Mobile Navigation links */}
+                <div className="space-y-1 md:hidden">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#9A9A9A] px-3 mb-2">
+                    Quick Navigation
+                  </p>
+                  <div className="space-y-1">
+                    {desktopTabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = pathname === tab.href;
+                      return (
+                        <Link
+                          key={tab.href}
+                          href={tab.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all ${
+                            isActive
+                              ? 'bg-[#FFF5F0] text-[#E4572E] border border-[#FCDDC9]/60'
+                              : 'text-[#1a1a1a] hover:bg-[#FAF8F5]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="w-4 h-4" />
+                            <span>{tab.label}</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#A69B91]" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-[#9A9A9A] px-3 mb-2">
                     Gate Desk Info
